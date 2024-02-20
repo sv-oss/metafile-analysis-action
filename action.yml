@@ -1,0 +1,57 @@
+name: 'ESBuild Metafile Analysis'
+description: 'Generates a PR comment based on the metafile data analysis completed'
+inputs:
+  github-token:
+    description: 'The Github token to use'
+    required: true
+  metafile-directory:
+    description: 'The directory in the file-system where to source all metafiles'
+    required: true
+  metafile-glob:
+    description: 'A glob to filter out and include only specific metafiles'
+    required: false
+    default: '**/*.json'
+  comment-header:
+    description: 'Any details to put in the header of the comment before rendering the table of files'
+  comment-footer:
+    description: 'Any details to put at the end of the comment after rendering the table of files'
+  comment-threshold-critical:
+    description: 'The file size (including unit) to start marking files as a critical status'
+    default: "5mb"
+  comment-threshold-high:
+    description: 'The file size (including unit) to start marking files as a high status'
+    default: '1mb'
+  comment-threshold-medium:
+    description: 'The file size (including unit) to start marking files as a medium status'
+    default: '500kb'
+  comment-threshold-low:
+    description: 'The file size (including unit) to start marking files as a low status'
+    default: '300kb'
+  comment-large-node-modules-threshold:
+    description: 'The threshold to start adding the specific node_modules in the list of large node_modules'
+    default: '25kb'
+  comment-order-files-by:
+    description: 'The order of operation for the files, either "alphabetical" or "filesize" are accepted'
+    default: 'alphabetical'
+  comment-hoist-files:
+    description: 'Display the worst files in a list at the top of the comment'
+    default: false
+  comment-hoist-level:
+    description: 'The minimum severity to hoist the files to the top. This goes hand-in-hand with the thresholds configured'
+    default: 'HIGH'
+  check-mark-failure:
+    description: 'Whether to add a check to the Pull Request as a failure when any file meets the threshold limit'
+    default: false
+  check-mark-file-count:
+    description: 'The number of files that need to reach the threshold to mark the Pull Request as a failure'
+    default: 1
+  check-mark-min-threshold:
+    description: 'The threshold for considering a file as a failure for whether or not to add a check'
+    default: 'HIGH'
+
+outputs:
+  time: # id of output
+    description: 'The time we greeted you'
+runs:
+  using: 'node20'
+  main: 'index.js'
