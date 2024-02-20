@@ -29583,7 +29583,7 @@ var analyze = async () => {
     import_github.context.repo.owner,
     import_github.context.repo.repo
   );
-  const toMake = orderedStatusEnums.map((type) => ({ type, comments: comments[type] })).filter((r) => r.comments.length > 0);
+  const toMake = orderedStatusEnums.map((type) => ({ type, comments: comments[type] })).filter((r) => r.comments?.length > 0);
   await prCommenter.upsertComment(prNumber, `${header}
 
   ${toMake.map(({ type, comments: comments2 }) => `<h3>${type}</h3>${comments2.join("\n\n")}`).join("\n\n")}

@@ -55,7 +55,7 @@ export const analyze = async () => {
     context.repo.repo,
   );
 
-  const toMake = orderedStatusEnums.map((type) => ({ type, comments: comments[type] })).filter(r => r.comments.length > 0);
+  const toMake = orderedStatusEnums.map((type) => ({ type, comments: comments[type] })).filter(r => r.comments?.length > 0);
 
   await prCommenter.upsertComment(prNumber, `${header}
 
