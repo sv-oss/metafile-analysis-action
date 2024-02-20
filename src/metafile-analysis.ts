@@ -1,6 +1,6 @@
 import { sync as globSync } from 'glob';
 import bytes from 'bytes';
-import core from '@actions/core';
+import * as core from '@actions/core';
 import { context, getOctokit } from '@actions/github';
 import path from 'path';
 import { ActionConfig, breakdownMetafile, buildCommentForFile } from './format-comment';
@@ -9,7 +9,7 @@ import { GithubCommentor } from './github/make-pr-comment';
 const getRequiredInput = (input: string): string =>core.getInput(input, { required: true, trimWhitespace: true });
 
 export const analyze = async () => {
-  core?.info('Received analysis request!');
+  core.info('Received analysis request!');
   console.log('Received analysis request (console)');
   const prNumber = context?.payload?.pull_request?.number;
   const ghToken = getRequiredInput('github-token');
