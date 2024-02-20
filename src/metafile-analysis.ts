@@ -1,52 +1,50 @@
-import { sync as globSync } from 'glob';
-import bytes from 'bytes';
-import * as core from '@actions/core';
-import { context, getOctokit } from '@actions/github';
-import path from 'path';
-import { ActionConfig, breakdownMetafile, buildMetadataForFile } from './format-comment';
-import { GithubCommentor } from './github/make-pr-comment';
+import { sync as globSync } from "glob";
+import * as core from "@actions/core";
+import { context, getOctokit } from "@actions/github";
+import path from "path";
+import { breakdownMetafile, buildMetadataForFile } from "./format-comment";
+import { GithubCommentor } from "./github/make-pr-comment";
+import { extractConfig } from "./config";
+import { Status, emojiForStatus, statusFromString } from "./status-data";
 
-const getRequiredInput = (input: string): string =>core.getInput(input, { required: true, trimWhitespace: true });
+const getRequiredInput = (input: string): string =>
+  core.getInput(input, { required: true, trimWhitespace: true });
 
 export const analyze = async () => {
-  core.info('Received analysis request!');
-  console.log('Received analysis request (console)');
+  core.info("Received analysis request!");
   const prNumber = context?.payload?.pull_request?.number;
-  const ghToken = getRequiredInput('github-token');
-  const metaDirectory = getRequiredInput('metafile-directory');
-  const metaGlob = core.getInput('metafile-glob');
-  const header = core.getInput('comment-header');
-  const footer = core.getInput('comment-footer');
+  const ghToken = getRequiredInput("github-token");
+  const metaDirectory = getRequiredInput("metafile-directory");
+  const metaGlob = core.getInput("metafile-glob");
+  const header = core.getInput("comment-header");
+  const footer = core.getInput("comment-footer");
+  const minThreshold = statusFromString(core.getInput("comment-min-threshold"));
 
   if (!prNumber) {
-    throw new Error('Metafile Analysis is only currently supported in the PR Context');
+    throw new Error(
+      "Metafile Analysis is only currently supported in the PR Context",
+    );
   }
-
 
   const files = globSync(metaGlob, {
     cwd: metaDirectory,
   });
 
-  const actionConfig: ActionConfig = {
-    thresholds: {
-      critical: bytes.parse(core.getInput('comment-threshold-critical')),
-      high: bytes.parse(core.getInput('comment-threshold-high')),
-      medium: bytes.parse(core.getInput('comment-threshold-medium')),
-      low: bytes.parse(core.getInput('comment-threshold-low')),
-    },
-    largeNodeModulesThreshold: bytes.parse(core.getInput('comment-large-node-modules-threshold')),
-  };
+  const actionConfig = extractConfig();
 
-  const comments: Record<string, string[]> = {};
+  const commentsByStatus: Record<
+    string,
+    ReturnType<typeof buildMetadataForFile>[]
+  > = {};
 
-  files.forEach(file => {
+  files.forEach((file) => {
     const metadata = breakdownMetafile(path.join(metaDirectory, file));
     const data = buildMetadataForFile(file, metadata, actionConfig);
-    if (!(data.status.enum in comments)) {
-      comments[data.status.enum] = [];
+    if (!(data.status in commentsByStatus)) {
+      commentsByStatus[data.status] = [];
     }
 
-    comments[data.status.enum].push(data.comment);
+    commentsByStatus[data.status].push(data);
   });
 
   const prCommenter = new GithubCommentor(
@@ -55,13 +53,22 @@ export const analyze = async () => {
     context.repo.repo,
   );
 
-  const toMake = orderedStatusEnums.map((type) => ({ type, comments: comments[type] })).filter(r => r.comments?.length > 0);
+  const toMake = Object.values(Status)
+    .map((type) => {
+      commentsByStatus[type]?.sort((a, b) => b.totalSize - a.totalSize);
+      return {
+        type: type as Status,
+        comments: commentsByStatus[type],
+      };
+    })
+    .filter((r) => r.comments?.length > 0 && r.type < minThreshold);
 
-  await prCommenter.upsertComment(prNumber, `${header}
+  await prCommenter.upsertComment(
+    prNumber,
+    `${header}
 
-  ${toMake.map(({ type, comments }) => `<h3>${type}</h3>${comments.join('\n\n')}`).join('\n\n')}
+  ${toMake.map(({ type, comments }) => `<h3>${type} (${emojiForStatus(type)}</h3>${comments.join("\n\n")}`).join("\n\n")}
   
-  ${footer}`);
-}
-
-const orderedStatusEnums = ['Critical', 'High', 'Medium', 'Low', 'Info'];
+  ${footer}`,
+  );
+};

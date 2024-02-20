@@ -244,95 +244,6 @@ var require_brace_expansion = __commonJS({
   }
 });
 
-// node_modules/bytes/index.js
-var require_bytes = __commonJS({
-  "node_modules/bytes/index.js"(exports2, module2) {
-    "use strict";
-    module2.exports = bytes3;
-    module2.exports.format = format;
-    module2.exports.parse = parse2;
-    var formatThousandsRegExp = /\B(?=(\d{3})+(?!\d))/g;
-    var formatDecimalsRegExp = /(?:\.0*|(\.[^0]+)0+)$/;
-    var map = {
-      b: 1,
-      kb: 1 << 10,
-      mb: 1 << 20,
-      gb: 1 << 30,
-      tb: Math.pow(1024, 4),
-      pb: Math.pow(1024, 5)
-    };
-    var parseRegExp = /^((-|\+)?(\d+(?:\.\d+)?)) *(kb|mb|gb|tb|pb)$/i;
-    function bytes3(value, options) {
-      if (typeof value === "string") {
-        return parse2(value);
-      }
-      if (typeof value === "number") {
-        return format(value, options);
-      }
-      return null;
-    }
-    function format(value, options) {
-      if (!Number.isFinite(value)) {
-        return null;
-      }
-      var mag = Math.abs(value);
-      var thousandsSeparator = options && options.thousandsSeparator || "";
-      var unitSeparator = options && options.unitSeparator || "";
-      var decimalPlaces = options && options.decimalPlaces !== void 0 ? options.decimalPlaces : 2;
-      var fixedDecimals = Boolean(options && options.fixedDecimals);
-      var unit = options && options.unit || "";
-      if (!unit || !map[unit.toLowerCase()]) {
-        if (mag >= map.pb) {
-          unit = "PB";
-        } else if (mag >= map.tb) {
-          unit = "TB";
-        } else if (mag >= map.gb) {
-          unit = "GB";
-        } else if (mag >= map.mb) {
-          unit = "MB";
-        } else if (mag >= map.kb) {
-          unit = "KB";
-        } else {
-          unit = "B";
-        }
-      }
-      var val = value / map[unit.toLowerCase()];
-      var str = val.toFixed(decimalPlaces);
-      if (!fixedDecimals) {
-        str = str.replace(formatDecimalsRegExp, "$1");
-      }
-      if (thousandsSeparator) {
-        str = str.split(".").map(function(s, i) {
-          return i === 0 ? s.replace(formatThousandsRegExp, thousandsSeparator) : s;
-        }).join(".");
-      }
-      return str + unitSeparator + unit;
-    }
-    function parse2(val) {
-      if (typeof val === "number" && !isNaN(val)) {
-        return val;
-      }
-      if (typeof val !== "string") {
-        return null;
-      }
-      var results = parseRegExp.exec(val);
-      var floatValue;
-      var unit = "b";
-      if (!results) {
-        floatValue = parseInt(val, 10);
-        unit = "b";
-      } else {
-        floatValue = parseFloat(results[1]);
-        unit = results[4].toLowerCase();
-      }
-      if (isNaN(floatValue)) {
-        return null;
-      }
-      return Math.floor(map[unit] * floatValue);
-    }
-  }
-});
-
 // node_modules/@actions/core/lib/utils.js
 var require_utils = __commonJS({
   "node_modules/@actions/core/lib/utils.js"(exports2) {
@@ -19022,7 +18933,7 @@ var require_core = __commonJS({
       process.env["PATH"] = `${inputPath}${path3.delimiter}${process.env["PATH"]}`;
     }
     exports2.addPath = addPath;
-    function getInput2(name, options) {
+    function getInput3(name, options) {
       const val = process.env[`INPUT_${name.replace(/ /g, "_").toUpperCase()}`] || "";
       if (options && options.required && !val) {
         throw new Error(`Input required and not supplied: ${name}`);
@@ -19032,9 +18943,9 @@ var require_core = __commonJS({
       }
       return val.trim();
     }
-    exports2.getInput = getInput2;
+    exports2.getInput = getInput3;
     function getMultilineInput(name, options) {
-      const inputs = getInput2(name, options).split("\n").filter((x) => x !== "");
+      const inputs = getInput3(name, options).split("\n").filter((x) => x !== "");
       if (options && options.trimWhitespace === false) {
         return inputs;
       }
@@ -19044,7 +18955,7 @@ var require_core = __commonJS({
     function getBooleanInput(name, options) {
       const trueValue = ["true", "True", "TRUE"];
       const falseValue = ["false", "False", "FALSE"];
-      const val = getInput2(name, options);
+      const val = getInput3(name, options);
       if (trueValue.includes(val))
         return true;
       if (falseValue.includes(val))
@@ -23183,6 +23094,95 @@ var require_github = __commonJS({
       return new GitHubWithPlugins((0, utils_1.getOctokitOptions)(token, options));
     }
     exports2.getOctokit = getOctokit2;
+  }
+});
+
+// node_modules/bytes/index.js
+var require_bytes = __commonJS({
+  "node_modules/bytes/index.js"(exports2, module2) {
+    "use strict";
+    module2.exports = bytes3;
+    module2.exports.format = format;
+    module2.exports.parse = parse2;
+    var formatThousandsRegExp = /\B(?=(\d{3})+(?!\d))/g;
+    var formatDecimalsRegExp = /(?:\.0*|(\.[^0]+)0+)$/;
+    var map = {
+      b: 1,
+      kb: 1 << 10,
+      mb: 1 << 20,
+      gb: 1 << 30,
+      tb: Math.pow(1024, 4),
+      pb: Math.pow(1024, 5)
+    };
+    var parseRegExp = /^((-|\+)?(\d+(?:\.\d+)?)) *(kb|mb|gb|tb|pb)$/i;
+    function bytes3(value, options) {
+      if (typeof value === "string") {
+        return parse2(value);
+      }
+      if (typeof value === "number") {
+        return format(value, options);
+      }
+      return null;
+    }
+    function format(value, options) {
+      if (!Number.isFinite(value)) {
+        return null;
+      }
+      var mag = Math.abs(value);
+      var thousandsSeparator = options && options.thousandsSeparator || "";
+      var unitSeparator = options && options.unitSeparator || "";
+      var decimalPlaces = options && options.decimalPlaces !== void 0 ? options.decimalPlaces : 2;
+      var fixedDecimals = Boolean(options && options.fixedDecimals);
+      var unit = options && options.unit || "";
+      if (!unit || !map[unit.toLowerCase()]) {
+        if (mag >= map.pb) {
+          unit = "PB";
+        } else if (mag >= map.tb) {
+          unit = "TB";
+        } else if (mag >= map.gb) {
+          unit = "GB";
+        } else if (mag >= map.mb) {
+          unit = "MB";
+        } else if (mag >= map.kb) {
+          unit = "KB";
+        } else {
+          unit = "B";
+        }
+      }
+      var val = value / map[unit.toLowerCase()];
+      var str = val.toFixed(decimalPlaces);
+      if (!fixedDecimals) {
+        str = str.replace(formatDecimalsRegExp, "$1");
+      }
+      if (thousandsSeparator) {
+        str = str.split(".").map(function(s, i) {
+          return i === 0 ? s.replace(formatThousandsRegExp, thousandsSeparator) : s;
+        }).join(".");
+      }
+      return str + unitSeparator + unit;
+    }
+    function parse2(val) {
+      if (typeof val === "number" && !isNaN(val)) {
+        return val;
+      }
+      if (typeof val !== "string") {
+        return null;
+      }
+      var results = parseRegExp.exec(val);
+      var floatValue;
+      var unit = "b";
+      if (!results) {
+        floatValue = parseInt(val, 10);
+        unit = "b";
+      } else {
+        floatValue = parseFloat(results[1]);
+        unit = results[4].toLowerCase();
+      }
+      if (isNaN(floatValue)) {
+        return null;
+      }
+      return Math.floor(map[unit] * floatValue);
+    }
   }
 });
 
@@ -29402,23 +29402,84 @@ var glob = Object.assign(glob_, {
 glob.glob = glob;
 
 // src/metafile-analysis.ts
-var import_bytes2 = __toESM(require_bytes());
-var core = __toESM(require_core());
+var core2 = __toESM(require_core());
 var import_github = __toESM(require_github());
 var import_path2 = __toESM(require("path"));
 
 // src/format-comment.ts
 var import_fs2 = require("fs");
 var import_bytes = __toESM(require_bytes());
+
+// src/status-data.ts
+var Status = /* @__PURE__ */ ((Status2) => {
+  Status2[Status2["CRITICAL"] = 0] = "CRITICAL";
+  Status2[Status2["HIGH"] = 1] = "HIGH";
+  Status2[Status2["MEDIUM"] = 2] = "MEDIUM";
+  Status2[Status2["LOW"] = 3] = "LOW";
+  Status2[Status2["INFO"] = 4] = "INFO";
+  return Status2;
+})(Status || {});
+var statusForSize = (size, thresholds) => {
+  switch (true) {
+    case size > thresholds.critical:
+      return 0 /* CRITICAL */;
+    case size > thresholds.high:
+      return 1 /* HIGH */;
+    case size > thresholds.medium:
+      return 2 /* MEDIUM */;
+    case size > thresholds.low:
+      return 3 /* LOW */;
+    default:
+      return 4 /* INFO */;
+  }
+};
+var emojiForStatus = (status) => {
+  switch (status) {
+    case 0 /* CRITICAL */:
+      return "\u{1F6A8}";
+    case 1 /* HIGH */:
+      return "\u{1F6A9}";
+    case 2 /* MEDIUM */:
+      return "\u26A0\uFE0F";
+    case 3 /* LOW */:
+      return "\u26A0";
+    case 4 /* INFO */:
+      return "";
+    default:
+      throw new Error(`Unknown status "${status}" received`);
+  }
+};
+var statusFromString = (str) => {
+  switch (str.toUpperCase()) {
+    case "CRITICAL":
+      return 0 /* CRITICAL */;
+    case "HIGH":
+      return 1 /* HIGH */;
+    case "MEDIUM":
+      return 2 /* MEDIUM */;
+    case "LOW":
+      return 3 /* LOW */;
+    case "INFO":
+      return 4 /* INFO */;
+    default:
+      throw new Error(`Unknown status of "${str}" received`);
+  }
+};
+
+// src/format-comment.ts
 var toKb = (size) => (0, import_bytes.default)(size);
 function buildMetadataForFile(fullName, metafile, actionConfig) {
   const metadata = metafile[0];
-  const largerNodeMods = metadata.nodeModules.filter((mod) => mod.size > actionConfig.largeNodeModulesThreshold);
+  const largerNodeMods = metadata.nodeModules.filter(
+    (mod) => mod.size > actionConfig.largeNodeModulesThreshold
+  );
   const status = statusForSize(metadata.totalSize, actionConfig.thresholds);
   const fileName = fullName.replace(".meta.json", "");
   return {
     status,
-    comment: `<details><summary>${fileName} <b>(${toKb(metadata.totalSize)})</b> ${status.emoji}
+    totalSize: metadata.totalSize,
+    fileName,
+    comment: `<details><summary>${fileName} <b>(${toKb(metadata.totalSize)})</b> ${emojiForStatus(status)}
     </summary>
   
   | Description | Size |
@@ -29431,32 +29492,6 @@ function buildMetadataForFile(fullName, metafile, actionConfig) {
     `
   };
 }
-var statusForSize = (size, thresholds) => {
-  switch (true) {
-    case size > thresholds.critical:
-      return {
-        emoji: "\u{1F6A8}",
-        enum: "Critical"
-      };
-    case size > thresholds.high:
-      return {
-        emoji: "\u{1F6A9}",
-        enum: "High"
-      };
-    case size > thresholds.medium:
-      return {
-        emoji: "\u26A0\uFE0F",
-        enum: "Medium"
-      };
-    case size > thresholds.low:
-      return {
-        emoji: "\u26A0",
-        enum: "Low"
-      };
-    default:
-      return { emoji: "", enum: "Info" };
-  }
-};
 function breakdownMetafile(filePath) {
   let srcSize = 0;
   const topLevelNodeModules = {};
@@ -29481,7 +29516,9 @@ function breakdownMetafile(filePath) {
         srcSize += value.bytesInOutput;
       }
     });
-    const nodeModules = Object.entries(topLevelNodeModules).map(([name, size]) => ({ name, size }));
+    const nodeModules = Object.entries(topLevelNodeModules).map(
+      ([name, size]) => ({ name, size })
+    );
     nodeModules.sort((a, b) => b.size - a.size);
     return {
       nodeModules,
@@ -29543,58 +29580,81 @@ var GithubCommentor = class _GithubCommentor {
   }
 };
 
+// src/config.ts
+var import_bytes2 = __toESM(require_bytes());
+var core = __toESM(require_core());
+var extractConfig = () => ({
+  thresholds: {
+    critical: import_bytes2.default.parse(core.getInput("comment-threshold-critical")),
+    high: import_bytes2.default.parse(core.getInput("comment-threshold-high")),
+    medium: import_bytes2.default.parse(core.getInput("comment-threshold-medium")),
+    low: import_bytes2.default.parse(core.getInput("comment-threshold-low"))
+  },
+  largeNodeModulesThreshold: import_bytes2.default.parse(
+    core.getInput("comment-large-node-modules-threshold")
+  )
+});
+
 // src/metafile-analysis.ts
-var getRequiredInput = (input) => core.getInput(input, { required: true, trimWhitespace: true });
+var getRequiredInput = (input) => core2.getInput(input, { required: true, trimWhitespace: true });
 var analyze = async () => {
-  core.info("Received analysis request!");
-  console.log("Received analysis request (console)");
+  core2.info("Received analysis request!");
   const prNumber = import_github.context?.payload?.pull_request?.number;
   const ghToken = getRequiredInput("github-token");
   const metaDirectory = getRequiredInput("metafile-directory");
-  const metaGlob = core.getInput("metafile-glob");
-  const header = core.getInput("comment-header");
-  const footer = core.getInput("comment-footer");
+  const metaGlob = core2.getInput("metafile-glob");
+  const header = core2.getInput("comment-header");
+  const footer = core2.getInput("comment-footer");
+  const minThreshold = statusFromString(core2.getInput("comment-min-threshold"));
   if (!prNumber) {
-    throw new Error("Metafile Analysis is only currently supported in the PR Context");
+    throw new Error(
+      "Metafile Analysis is only currently supported in the PR Context"
+    );
   }
   const files = sync(metaGlob, {
     cwd: metaDirectory
   });
-  const actionConfig = {
-    thresholds: {
-      critical: import_bytes2.default.parse(core.getInput("comment-threshold-critical")),
-      high: import_bytes2.default.parse(core.getInput("comment-threshold-high")),
-      medium: import_bytes2.default.parse(core.getInput("comment-threshold-medium")),
-      low: import_bytes2.default.parse(core.getInput("comment-threshold-low"))
-    },
-    largeNodeModulesThreshold: import_bytes2.default.parse(core.getInput("comment-large-node-modules-threshold"))
-  };
-  const comments = {};
+  const actionConfig = extractConfig();
+  const commentsByStatus = {};
   files.forEach((file) => {
     const metadata = breakdownMetafile(import_path2.default.join(metaDirectory, file));
     const data = buildMetadataForFile(file, metadata, actionConfig);
-    if (!(data.status.enum in comments)) {
-      comments[data.status.enum] = [];
+    if (!(data.status in commentsByStatus)) {
+      commentsByStatus[data.status] = [];
     }
-    comments[data.status.enum].push(data.comment);
+    commentsByStatus[data.status].push(data);
   });
   const prCommenter = new GithubCommentor(
     (0, import_github.getOctokit)(ghToken),
     import_github.context.repo.owner,
     import_github.context.repo.repo
   );
-  const toMake = orderedStatusEnums.map((type) => ({ type, comments: comments[type] })).filter((r) => r.comments?.length > 0);
-  await prCommenter.upsertComment(prNumber, `${header}
+  const toMake = Object.values(Status).map((type) => {
+    commentsByStatus[type]?.sort((a, b) => b.totalSize - a.totalSize);
+    return {
+      type,
+      comments: commentsByStatus[type]
+    };
+  }).filter((r) => r.comments?.length > 0 && r.type < minThreshold);
+  await prCommenter.upsertComment(
+    prNumber,
+    `${header}
 
-  ${toMake.map(({ type, comments: comments2 }) => `<h3>${type}</h3>${comments2.join("\n\n")}`).join("\n\n")}
+  ${toMake.map(({ type, comments }) => `<h3>${type} (${emojiForStatus(type)}</h3>${comments.join("\n\n")}`).join("\n\n")}
   
-  ${footer}`);
+  ${footer}`
+  );
 };
-var orderedStatusEnums = ["Critical", "High", "Medium", "Low", "Info"];
 
 // src/index.ts
 analyze();
 /*! Bundled license information:
+
+undici/lib/fetch/body.js:
+  (*! formdata-polyfill. MIT License. Jimmy Wärting <https://jimmy.warting.se/opensource> *)
+
+undici/lib/websocket/frame.js:
+  (*! ws. MIT License. Einar Otto Stangvik <einaros@gmail.com> *)
 
 bytes/index.js:
   (*!
@@ -29603,10 +29663,4 @@ bytes/index.js:
    * Copyright(c) 2015 Jed Watson
    * MIT Licensed
    *)
-
-undici/lib/fetch/body.js:
-  (*! formdata-polyfill. MIT License. Jimmy Wärting <https://jimmy.warting.se/opensource> *)
-
-undici/lib/websocket/frame.js:
-  (*! ws. MIT License. Einar Otto Stangvik <einaros@gmail.com> *)
 */
