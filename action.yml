@@ -35,16 +35,16 @@ inputs:
     default: 'alphabetical'
   comment-hoist-files:
     description: 'Display the worst files in a list at the top of the comment'
-    default: false
+    default: 'false'
   comment-hoist-level:
     description: 'The minimum severity to hoist the files to the top. This goes hand-in-hand with the thresholds configured'
     default: 'HIGH'
   check-mark-failure:
     description: 'Whether to add a check to the Pull Request as a failure when any file meets the threshold limit'
-    default: false
+    default: 'false'
   check-mark-file-count:
     description: 'The number of files that need to reach the threshold to mark the Pull Request as a failure'
-    default: 1
+    default: '1'
   check-mark-min-threshold:
     description: 'The threshold for considering a file as a failure for whether or not to add a check'
     default: 'HIGH'

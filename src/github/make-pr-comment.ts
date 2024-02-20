@@ -1,4 +1,5 @@
-import { context, getOctokit } from "@actions/github";
+import { info } from '@actions/core';
+import { getOctokit } from "@actions/github";
 
 type OctoKit = ReturnType<typeof getOctokit>;
 
@@ -24,24 +25,28 @@ export class GithubCommentor {
       repo: this.repo,
     };
 
-    const { data: reviewComments } = await this.octokit.rest.pulls.listReviewComments({
+    const { data: reviewComments } = await this.octokit.rest.issues.listComments({
       ...baseRequest,
-      pull_number: prNumber,
+      issue_number: prNumber,
     });
 
     const comment = reviewComments.find(comment => {
-      return comment.body.startsWith(GithubCommentor.IdentifierComment);
+      return comment.body?.includes(GithubCommentor.IdentifierComment);
     });
 
-    const commentBody = `${GithubCommentor.IdentifierComment}<br />${commentToMake}`;
+    const commentBody = `${GithubCommentor.IdentifierComment}${commentToMake}`;
 
     if (comment) {
+      info('Found existing comment - updating content');
+      
       await this.octokit.rest.issues.updateComment({
         ...baseRequest,
         body: commentBody,
         comment_id: comment.id,
       });
     } else {
+      info('First run - creating comment');
+
       await this.octokit.rest.issues.createComment({
         ...baseRequest,
         body: commentBody,
