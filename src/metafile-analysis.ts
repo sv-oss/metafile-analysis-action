@@ -61,7 +61,7 @@ export const analyze = async () => {
         comments: commentsByStatus[type],
       };
     })
-    .filter((r) => r.comments?.length > 0 && r.type < minThreshold);
+    .filter((r) => r.comments?.length > 0 && r.type <= minThreshold);
 
   await prCommenter.upsertComment(
     prNumber,
