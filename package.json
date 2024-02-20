@@ -2,7 +2,7 @@
   "name": "metafile-analysis-action",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rimraf ./dist && esbuild --bundle ./src/index.ts --outdir=dist --platform=node"
