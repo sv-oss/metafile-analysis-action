@@ -4720,18 +4720,18 @@ var require_webidl = __commonJS({
     webidl.errors.exception = function(message) {
       return new TypeError(`${message.header}: ${message.message}`);
     };
-    webidl.errors.conversionFailed = function(context) {
-      const plural = context.types.length === 1 ? "" : " one of";
-      const message = `${context.argument} could not be converted to${plural}: ${context.types.join(", ")}.`;
+    webidl.errors.conversionFailed = function(context2) {
+      const plural = context2.types.length === 1 ? "" : " one of";
+      const message = `${context2.argument} could not be converted to${plural}: ${context2.types.join(", ")}.`;
       return webidl.errors.exception({
-        header: context.prefix,
+        header: context2.prefix,
         message
       });
     };
-    webidl.errors.invalidArgument = function(context) {
+    webidl.errors.invalidArgument = function(context2) {
       return webidl.errors.exception({
-        header: context.prefix,
-        message: `"${context.value}" is an invalid ${context.type}.`
+        header: context2.prefix,
+        message: `"${context2.value}" is an invalid ${context2.type}.`
       });
     };
     webidl.brandCheck = function(V, I, opts = void 0) {
@@ -10052,15 +10052,15 @@ var require_api_request = __commonJS({
         }
         addSignal(this, signal);
       }
-      onConnect(abort, context) {
+      onConnect(abort, context2) {
         if (!this.callback) {
           throw new RequestAbortedError();
         }
         this.abort = abort;
-        this.context = context;
+        this.context = context2;
       }
       onHeaders(statusCode, rawHeaders, resume, statusMessage) {
-        const { callback, opaque, abort, context, responseHeaders, highWaterMark } = this;
+        const { callback, opaque, abort, context: context2, responseHeaders, highWaterMark } = this;
         const headers = responseHeaders === "raw" ? util.parseRawHeaders(rawHeaders) : util.parseHeaders(rawHeaders);
         if (statusCode < 200) {
           if (this.onInfo) {
@@ -10087,7 +10087,7 @@ var require_api_request = __commonJS({
               trailers: this.trailers,
               opaque,
               body,
-              context
+              context: context2
             });
           }
         }
@@ -10207,15 +10207,15 @@ var require_api_stream = __commonJS({
         }
         addSignal(this, signal);
       }
-      onConnect(abort, context) {
+      onConnect(abort, context2) {
         if (!this.callback) {
           throw new RequestAbortedError();
         }
         this.abort = abort;
-        this.context = context;
+        this.context = context2;
       }
       onHeaders(statusCode, rawHeaders, resume, statusMessage) {
-        const { factory, opaque, context, callback, responseHeaders } = this;
+        const { factory, opaque, context: context2, callback, responseHeaders } = this;
         const headers = responseHeaders === "raw" ? util.parseRawHeaders(rawHeaders) : util.parseHeaders(rawHeaders);
         if (statusCode < 200) {
           if (this.onInfo) {
@@ -10243,7 +10243,7 @@ var require_api_stream = __commonJS({
             statusCode,
             headers,
             opaque,
-            context
+            context: context2
           });
           if (!res || typeof res.write !== "function" || typeof res.end !== "function" || typeof res.on !== "function") {
             throw new InvalidReturnValueError("expected Writable");
@@ -10435,17 +10435,17 @@ var require_api_pipeline = __commonJS({
         this.res = null;
         addSignal(this, signal);
       }
-      onConnect(abort, context) {
+      onConnect(abort, context2) {
         const { ret, res } = this;
         assert(!res, "pipeline cannot be retried");
         if (ret.destroyed) {
           throw new RequestAbortedError();
         }
         this.abort = abort;
-        this.context = context;
+        this.context = context2;
       }
       onHeaders(statusCode, rawHeaders, resume) {
-        const { opaque, handler, context } = this;
+        const { opaque, handler, context: context2 } = this;
         if (statusCode < 200) {
           if (this.onInfo) {
             const headers = this.responseHeaders === "raw" ? util.parseRawHeaders(rawHeaders) : util.parseHeaders(rawHeaders);
@@ -10463,7 +10463,7 @@ var require_api_pipeline = __commonJS({
             headers,
             opaque,
             body: this.res,
-            context
+            context: context2
           });
         } catch (err) {
           this.res.on("error", util.nop);
@@ -10547,7 +10547,7 @@ var require_api_upgrade = __commonJS({
         this.context = null;
         addSignal(this, signal);
       }
-      onConnect(abort, context) {
+      onConnect(abort, context2) {
         if (!this.callback) {
           throw new RequestAbortedError();
         }
@@ -10558,7 +10558,7 @@ var require_api_upgrade = __commonJS({
         throw new SocketError("bad upgrade", null);
       }
       onUpgrade(statusCode, rawHeaders, socket) {
-        const { callback, opaque, context } = this;
+        const { callback, opaque, context: context2 } = this;
         assert.strictEqual(statusCode, 101);
         removeSignal(this);
         this.callback = null;
@@ -10567,7 +10567,7 @@ var require_api_upgrade = __commonJS({
           headers,
           socket,
           opaque,
-          context
+          context: context2
         });
       }
       onError(err) {
@@ -10635,18 +10635,18 @@ var require_api_connect = __commonJS({
         this.abort = null;
         addSignal(this, signal);
       }
-      onConnect(abort, context) {
+      onConnect(abort, context2) {
         if (!this.callback) {
           throw new RequestAbortedError();
         }
         this.abort = abort;
-        this.context = context;
+        this.context = context2;
       }
       onHeaders() {
         throw new SocketError("bad connect", null);
       }
       onUpgrade(statusCode, rawHeaders, socket) {
-        const { callback, opaque, context } = this;
+        const { callback, opaque, context: context2 } = this;
         removeSignal(this);
         this.callback = null;
         let headers = rawHeaders;
@@ -10658,7 +10658,7 @@ var require_api_connect = __commonJS({
           headers,
           socket,
           opaque,
-          context
+          context: context2
         });
       }
       onError(err) {
@@ -19638,8 +19638,8 @@ var require_dist_node2 = __commonJS({
     function isKeyOperator(operator) {
       return operator === ";" || operator === "&" || operator === "?";
     }
-    function getValues(context, operator, key, modifier) {
-      var value = context[key], result = [];
+    function getValues(context2, operator, key, modifier) {
+      var value = context2[key], result = [];
       if (isDefined(value) && value !== "") {
         if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
           value = value.toString();
@@ -19703,7 +19703,7 @@ var require_dist_node2 = __commonJS({
         expand: expand2.bind(null, template)
       };
     }
-    function expand2(template, context) {
+    function expand2(template, context2) {
       var operators = ["+", "#", ".", "/", ";", "?", "&"];
       template = template.replace(
         /\{([^\{\}]+)\}|([^\{\}]+)/g,
@@ -19717,7 +19717,7 @@ var require_dist_node2 = __commonJS({
             }
             expression.split(/,/g).forEach(function(variable) {
               var tmp = /([^:\*]*)(?::(\d+)|(\*))?/.exec(variable);
-              values.push(getValues(context, operator, tmp[1], tmp[2] || tmp[3]));
+              values.push(getValues(context2, operator, tmp[1], tmp[2] || tmp[3]));
             });
             if (operator && operator !== "+") {
               var separator = ",";
@@ -23178,11 +23178,11 @@ var require_github = __commonJS({
     var Context = __importStar(require_context());
     var utils_1 = require_utils4();
     exports2.context = new Context.Context();
-    function getOctokit(token, options, ...additionalPlugins) {
+    function getOctokit2(token, options, ...additionalPlugins) {
       const GitHubWithPlugins = utils_1.GitHub.plugin(...additionalPlugins);
       return new GitHubWithPlugins((0, utils_1.getOctokitOptions)(token, options));
     }
-    exports2.getOctokit = getOctokit;
+    exports2.getOctokit = getOctokit2;
   }
 });
 
@@ -24707,7 +24707,7 @@ var LRUCache = class _LRUCache {
       free: c.#free,
       // methods
       isBackgroundFetch: (p) => c.#isBackgroundFetch(p),
-      backgroundFetch: (k, index, options, context) => c.#backgroundFetch(k, index, options, context),
+      backgroundFetch: (k, index, options, context2) => c.#backgroundFetch(k, index, options, context2),
       moveToTail: (index) => c.#moveToTail(index),
       indexes: (options) => c.#indexes(options),
       rindexes: (options) => c.#rindexes(options),
@@ -25429,7 +25429,7 @@ var LRUCache = class _LRUCache {
     const v = this.#valList[index];
     return this.#isBackgroundFetch(v) ? v.__staleWhileFetching : v;
   }
-  #backgroundFetch(k, index, options, context) {
+  #backgroundFetch(k, index, options, context2) {
     const v = index === void 0 ? void 0 : this.#valList[index];
     if (this.#isBackgroundFetch(v)) {
       return v;
@@ -25442,7 +25442,7 @@ var LRUCache = class _LRUCache {
     const fetchOpts = {
       signal: ac.signal,
       options,
-      context
+      context: context2
     };
     const cb = (v2, updateCache = false) => {
       const { aborted } = ac.signal;
@@ -25559,7 +25559,7 @@ var LRUCache = class _LRUCache {
       allowStaleOnFetchRejection = this.allowStaleOnFetchRejection,
       ignoreFetchAbort = this.ignoreFetchAbort,
       allowStaleOnFetchAbort = this.allowStaleOnFetchAbort,
-      context,
+      context: context2,
       forceRefresh = false,
       status,
       signal
@@ -25594,7 +25594,7 @@ var LRUCache = class _LRUCache {
     if (index === void 0) {
       if (status)
         status.fetch = "miss";
-      const p = this.#backgroundFetch(k, index, options, context);
+      const p = this.#backgroundFetch(k, index, options, context2);
       return p.__returned = p;
     } else {
       const v = this.#valList[index];
@@ -25619,7 +25619,7 @@ var LRUCache = class _LRUCache {
           this.#statusTTL(status, index);
         return v;
       }
-      const p = this.#backgroundFetch(k, index, options, context);
+      const p = this.#backgroundFetch(k, index, options, context2);
       const hasStale = p.__staleWhileFetching !== void 0;
       const staleVal = hasStale && allowStale;
       if (status) {
@@ -29540,7 +29540,9 @@ var GithubCommentor = class _GithubCommentor {
 // src/metafile-analysis.ts
 var getRequiredInput = (input) => import_core.default.getInput(input, { required: true, trimWhitespace: true });
 var analyze = async () => {
-  const prNumber = import_github.default.context.payload.pull_request?.number;
+  import_core.default?.info("Received analysis request!");
+  console.log("Received analysis request (console)");
+  const prNumber = import_github.context?.payload?.pull_request?.number;
   const ghToken = getRequiredInput("github-token");
   const metaDirectory = getRequiredInput("metafile-directory");
   const metaGlob = import_core.default.getInput("metafile-glob");
@@ -29567,9 +29569,9 @@ var analyze = async () => {
     comment.push(buildCommentForFile(file, metadata, actionConfig));
   });
   const prCommenter = new GithubCommentor(
-    import_github.default.getOctokit(ghToken),
-    import_github.default.context.repo.owner,
-    import_github.default.context.repo.repo
+    (0, import_github.getOctokit)(ghToken),
+    import_github.context.repo.owner,
+    import_github.context.repo.repo
   );
   await prCommenter.upsertComment(prNumber, `${header}
 

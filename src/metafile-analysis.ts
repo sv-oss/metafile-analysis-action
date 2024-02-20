@@ -1,8 +1,7 @@
-import { readFileSync } from 'fs';
 import { sync as globSync } from 'glob';
 import bytes from 'bytes';
 import core from '@actions/core';
-import gh from '@actions/github';
+import { context, getOctokit } from '@actions/github';
 import path from 'path';
 import { ActionConfig, breakdownMetafile, buildCommentForFile } from './format-comment';
 import { GithubCommentor } from './github/make-pr-comment';
@@ -10,7 +9,9 @@ import { GithubCommentor } from './github/make-pr-comment';
 const getRequiredInput = (input: string): string =>core.getInput(input, { required: true, trimWhitespace: true });
 
 export const analyze = async () => {
-  const prNumber = gh.context.payload.pull_request?.number;
+  core?.info('Received analysis request!');
+  console.log('Received analysis request (console)');
+  const prNumber = context?.payload?.pull_request?.number;
   const ghToken = getRequiredInput('github-token');
   const metaDirectory = getRequiredInput('metafile-directory');
   const metaGlob = core.getInput('metafile-glob');
@@ -45,9 +46,9 @@ export const analyze = async () => {
   });
 
   const prCommenter = new GithubCommentor(
-    gh.getOctokit(ghToken),
-    gh.context.repo.owner,
-    gh.context.repo.repo,
+    getOctokit(ghToken),
+    context.repo.owner,
+    context.repo.repo,
   );
 
   await prCommenter.upsertComment(prNumber, `${header}
