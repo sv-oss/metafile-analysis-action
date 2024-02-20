@@ -29411,22 +29411,25 @@ var import_path2 = __toESM(require("path"));
 var import_fs2 = require("fs");
 var import_bytes = __toESM(require_bytes());
 var toKb = (size) => (0, import_bytes.default)(size);
-function buildCommentForFile(fullName, metafile, actionConfig) {
+function buildMetadataForFile(fullName, metafile, actionConfig) {
   const metadata = metafile[0];
   const largerNodeMods = metadata.nodeModules.filter((mod) => mod.size > actionConfig.largeNodeModulesThreshold);
   const status = statusForSize(metadata.totalSize, actionConfig.thresholds);
   const fileName = fullName.replace(".meta.json", "");
-  return `<details><summary>${fileName} <b>(${toKb(metadata.totalSize)})</b> ${status.emoji}
-  </summary>
-
-| Description | Size |
-|--------|--------|
-| **Total Size** | ${toKb(metadata.totalSize)} |
-| **Source Files** | ${toKb(metadata.srcFile.size)} |
-| **node_modules** | ${toKb(metadata.totalSize - metadata.srcFile.size)} |
-${largerNodeMods.length ? largerNodeMods.map((mod) => `| <li>${mod.name}</li> | ${toKb(mod.size)} |`).join("\n") : ""}
-</details>
-  `;
+  return {
+    status,
+    comment: `<details><summary>${fileName} <b>(${toKb(metadata.totalSize)})</b> ${status.emoji}
+    </summary>
+  
+  | Description | Size |
+  |--------|--------|
+  | **Total Size** | ${toKb(metadata.totalSize)} |
+  | **Source Files** | ${toKb(metadata.srcFile.size)} |
+  | **node_modules** | ${toKb(metadata.totalSize - metadata.srcFile.size)} |
+  ${largerNodeMods.length ? largerNodeMods.map((mod) => `| <li>${mod.name}</li> | ${toKb(mod.size)} |`).join("\n") : ""}
+  </details>
+    `
+  };
 }
 var statusForSize = (size, thresholds) => {
   switch (true) {
@@ -29451,7 +29454,7 @@ var statusForSize = (size, thresholds) => {
         enum: "Low"
       };
     default:
-      return { emoji: "", enum: "Normal" };
+      return { emoji: "", enum: "Info" };
   }
 };
 function breakdownMetafile(filePath) {
@@ -29566,22 +29569,28 @@ var analyze = async () => {
     },
     largeNodeModulesThreshold: import_bytes2.default.parse(core.getInput("comment-large-node-modules-threshold"))
   };
-  const comment = [];
+  const comments = {};
   files.forEach((file) => {
     const metadata = breakdownMetafile(import_path2.default.join(metaDirectory, file));
-    comment.push(buildCommentForFile(file, metadata, actionConfig));
+    const data = buildMetadataForFile(file, metadata, actionConfig);
+    if (!(data.status.enum in comments)) {
+      comments[data.status.enum] = [];
+    }
+    comments[data.status.enum].push(data.comment);
   });
   const prCommenter = new GithubCommentor(
     (0, import_github.getOctokit)(ghToken),
     import_github.context.repo.owner,
     import_github.context.repo.repo
   );
+  const toMake = orderedStatusEnums.map((type) => ({ type, comments: comments[type] })).filter((r) => r.comments.length > 0);
   await prCommenter.upsertComment(prNumber, `${header}
 
-  ${comment.join("\n\n")}
+  ${toMake.map(({ type, comments: comments2 }) => `<h3>${type}</h3>${comments2.join("\n\n")}`).join("\n\n")}
   
   ${footer}`);
 };
+var orderedStatusEnums = ["Critical", "High", "Medium", "Low", "Info"];
 
 // src/index.ts
 analyze();

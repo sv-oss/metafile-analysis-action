@@ -13,7 +13,7 @@ export interface ActionConfig {
 
 const toKb = (size: number) => bytes(size);
 
-export function buildCommentForFile(
+export function buildMetadataForFile(
   fullName: string,
   metafile: ReturnType<typeof breakdownMetafile>,
   actionConfig: ActionConfig
@@ -25,17 +25,20 @@ export function buildCommentForFile(
 
   const fileName = fullName.replace('.meta.json', '');
 
-  return `<details><summary>${fileName} <b>(${toKb(metadata.totalSize)})</b> ${status.emoji}
-  </summary>
-
-| Description | Size |
-|--------|--------|
-| **Total Size** | ${toKb(metadata.totalSize)} |
-| **Source Files** | ${toKb(metadata.srcFile.size)} |
-| **node_modules** | ${toKb(metadata.totalSize - metadata.srcFile.size)} |
-${largerNodeMods.length ? largerNodeMods.map((mod) => `| <li>${mod.name}</li> | ${toKb(mod.size)} |`).join('\n') : ''}
-</details>
-  `;
+  return {
+    status,
+    comment: `<details><summary>${fileName} <b>(${toKb(metadata.totalSize)})</b> ${status.emoji}
+    </summary>
+  
+  | Description | Size |
+  |--------|--------|
+  | **Total Size** | ${toKb(metadata.totalSize)} |
+  | **Source Files** | ${toKb(metadata.srcFile.size)} |
+  | **node_modules** | ${toKb(metadata.totalSize - metadata.srcFile.size)} |
+  ${largerNodeMods.length ? largerNodeMods.map((mod) => `| <li>${mod.name}</li> | ${toKb(mod.size)} |`).join('\n') : ''}
+  </details>
+    `
+  };
 }
 
 const statusForSize = (size: number, thresholds: ActionConfig['thresholds']): { emoji: string; enum: string } => {
@@ -61,7 +64,7 @@ const statusForSize = (size: number, thresholds: ActionConfig['thresholds']): { 
         enum: 'Low',
       };
     default:
-      return { emoji: '', enum: 'Normal' };
+      return { emoji: '', enum: 'Info' };
   }
 };
 

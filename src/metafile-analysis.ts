@@ -3,7 +3,7 @@ import bytes from 'bytes';
 import * as core from '@actions/core';
 import { context, getOctokit } from '@actions/github';
 import path from 'path';
-import { ActionConfig, breakdownMetafile, buildCommentForFile } from './format-comment';
+import { ActionConfig, breakdownMetafile, buildMetadataForFile } from './format-comment';
 import { GithubCommentor } from './github/make-pr-comment';
 
 const getRequiredInput = (input: string): string =>core.getInput(input, { required: true, trimWhitespace: true });
@@ -37,12 +37,16 @@ export const analyze = async () => {
     largeNodeModulesThreshold: bytes.parse(core.getInput('comment-large-node-modules-threshold')),
   };
 
-  const comment: string[] = [];
+  const comments: Record<string, string[]> = {};
 
   files.forEach(file => {
     const metadata = breakdownMetafile(path.join(metaDirectory, file));
+    const data = buildMetadataForFile(file, metadata, actionConfig);
+    if (!(data.status.enum in comments)) {
+      comments[data.status.enum] = [];
+    }
 
-    comment.push(buildCommentForFile(file, metadata, actionConfig));
+    comments[data.status.enum].push(data.comment);
   });
 
   const prCommenter = new GithubCommentor(
@@ -51,9 +55,13 @@ export const analyze = async () => {
     context.repo.repo,
   );
 
+  const toMake = orderedStatusEnums.map((type) => ({ type, comments: comments[type] })).filter(r => r.comments.length > 0);
+
   await prCommenter.upsertComment(prNumber, `${header}
 
-  ${comment.join('\n\n')}
+  ${toMake.map(({ type, comments }) => `<h3>${type}</h3>${comments.join('\n\n')}`).join('\n\n')}
   
   ${footer}`);
 }
+
+const orderedStatusEnums = ['Critical', 'High', 'Medium', 'Low', 'Info'];
