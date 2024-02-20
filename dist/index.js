@@ -29449,6 +29449,22 @@ var emojiForStatus = (status) => {
       throw new Error(`Unknown status "${status}" received`);
   }
 };
+var labelForStatus = (status) => {
+  switch (status) {
+    case 0 /* CRITICAL */:
+      return "Critical";
+    case 1 /* HIGH */:
+      return "High";
+    case 2 /* MEDIUM */:
+      return "Medium";
+    case 3 /* LOW */:
+      return "Low";
+    case 4 /* INFO */:
+      return "Info";
+    default:
+      throw new Error(`Unknown status "${status}" received`);
+  }
+};
 var statusFromString = (str) => {
   switch (str.toUpperCase()) {
     case "CRITICAL":
@@ -29633,14 +29649,14 @@ var analyze = async () => {
     commentsByStatus[type]?.sort((a, b) => b.totalSize - a.totalSize);
     return {
       type,
-      comments: commentsByStatus[type]
+      comments: (commentsByStatus[type] ?? []).map((c) => c.comment)
     };
   }).filter((r) => r.comments?.length > 0 && r.type <= minThreshold);
   await prCommenter.upsertComment(
     prNumber,
     `${header}
 
-  ${toMake.map(({ type, comments }) => `<h3>${type} (${emojiForStatus(type)}</h3>${comments.join("\n\n")}`).join("\n\n")}
+  ${toMake.map(({ type, comments }) => `<h3>${labelForStatus(type)} (${emojiForStatus(type)})</h3>${comments.join("\n\n")}`).join("\n\n")}
   
   ${footer}`
   );

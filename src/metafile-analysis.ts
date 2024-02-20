@@ -5,7 +5,7 @@ import path from "path";
 import { breakdownMetafile, buildMetadataForFile } from "./format-comment";
 import { GithubCommentor } from "./github/make-pr-comment";
 import { extractConfig } from "./config";
-import { Status, emojiForStatus, statusFromString } from "./status-data";
+import { Status, emojiForStatus, labelForStatus, statusFromString } from "./status-data";
 
 const getRequiredInput = (input: string): string =>
   core.getInput(input, { required: true, trimWhitespace: true });
@@ -58,7 +58,7 @@ export const analyze = async () => {
       commentsByStatus[type]?.sort((a, b) => b.totalSize - a.totalSize);
       return {
         type: type as Status,
-        comments: commentsByStatus[type],
+        comments: (commentsByStatus[type] ?? []).map(c => c.comment),
       };
     })
     .filter((r) => r.comments?.length > 0 && r.type <= minThreshold);
@@ -67,7 +67,7 @@ export const analyze = async () => {
     prNumber,
     `${header}
 
-  ${toMake.map(({ type, comments }) => `<h3>${type} (${emojiForStatus(type)}</h3>${comments.join("\n\n")}`).join("\n\n")}
+  ${toMake.map(({ type, comments }) => `<h3>${labelForStatus(type)} (${emojiForStatus(type)})</h3>${comments.join("\n\n")}`).join("\n\n")}
   
   ${footer}`,
   );
