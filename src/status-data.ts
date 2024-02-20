@@ -39,7 +39,7 @@ export const emojiForStatus = (status: Status) => {
     case Status.INFO:
       return "";
     default:
-      throw new Error(`Unknown status "${status}" received`);
+      throw new Error(`[emojiForStatus] Unknown status "${status}" received`);
   }
 };
 
@@ -56,7 +56,7 @@ export const labelForStatus = (status: Status) => {
     case Status.INFO:
       return "Info";
     default:
-      throw new Error(`Unknown status "${status}" received`);
+      throw new Error(`[labelForStatus] Unknown status "${status}" received`);
   }
 };
 
@@ -73,6 +73,6 @@ export const statusFromString = (str: string) => {
     case "INFO":
       return Status.INFO;
     default:
-      throw new Error(`Unknown status of "${str}" received`);
+      throw new Error(`[statusFromString] Unknown status of "${str}" received`);
   }
 };

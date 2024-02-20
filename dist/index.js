@@ -516,11 +516,11 @@ var init_parse = __esm({
 // node_modules/uuid/dist/esm-node/v35.js
 function stringToBytes(str) {
   str = unescape(encodeURIComponent(str));
-  const bytes3 = [];
+  const bytes4 = [];
   for (let i = 0; i < str.length; ++i) {
-    bytes3.push(str.charCodeAt(i));
+    bytes4.push(str.charCodeAt(i));
   }
-  return bytes3;
+  return bytes4;
 }
 function v35_default(name, version2, hashfunc) {
   function generateUUID(value, namespace, buf, offset) {
@@ -533,20 +533,20 @@ function v35_default(name, version2, hashfunc) {
     if (namespace.length !== 16) {
       throw TypeError("Namespace must be array-like (16 iterable integer values, 0-255)");
     }
-    let bytes3 = new Uint8Array(16 + value.length);
-    bytes3.set(namespace);
-    bytes3.set(value, namespace.length);
-    bytes3 = hashfunc(bytes3);
-    bytes3[6] = bytes3[6] & 15 | version2;
-    bytes3[8] = bytes3[8] & 63 | 128;
+    let bytes4 = new Uint8Array(16 + value.length);
+    bytes4.set(namespace);
+    bytes4.set(value, namespace.length);
+    bytes4 = hashfunc(bytes4);
+    bytes4[6] = bytes4[6] & 15 | version2;
+    bytes4[8] = bytes4[8] & 63 | 128;
     if (buf) {
       offset = offset || 0;
       for (let i = 0; i < 16; ++i) {
-        buf[offset + i] = bytes3[i];
+        buf[offset + i] = bytes4[i];
       }
       return buf;
     }
-    return stringify_default(bytes3);
+    return stringify_default(bytes4);
   }
   try {
     generateUUID.name = name;
@@ -567,13 +567,13 @@ var init_v35 = __esm({
 });
 
 // node_modules/uuid/dist/esm-node/md5.js
-function md5(bytes3) {
-  if (Array.isArray(bytes3)) {
-    bytes3 = Buffer.from(bytes3);
-  } else if (typeof bytes3 === "string") {
-    bytes3 = Buffer.from(bytes3, "utf8");
+function md5(bytes4) {
+  if (Array.isArray(bytes4)) {
+    bytes4 = Buffer.from(bytes4);
+  } else if (typeof bytes4 === "string") {
+    bytes4 = Buffer.from(bytes4, "utf8");
   }
-  return import_crypto2.default.createHash("md5").update(bytes3).digest();
+  return import_crypto2.default.createHash("md5").update(bytes4).digest();
 }
 var import_crypto2, md5_default;
 var init_md5 = __esm({
@@ -619,13 +619,13 @@ var init_v4 = __esm({
 });
 
 // node_modules/uuid/dist/esm-node/sha1.js
-function sha1(bytes3) {
-  if (Array.isArray(bytes3)) {
-    bytes3 = Buffer.from(bytes3);
-  } else if (typeof bytes3 === "string") {
-    bytes3 = Buffer.from(bytes3, "utf8");
+function sha1(bytes4) {
+  if (Array.isArray(bytes4)) {
+    bytes4 = Buffer.from(bytes4);
+  } else if (typeof bytes4 === "string") {
+    bytes4 = Buffer.from(bytes4, "utf8");
   }
-  return import_crypto3.default.createHash("sha1").update(bytes3).digest();
+  return import_crypto3.default.createHash("sha1").update(bytes4).digest();
 }
 var import_crypto3, sha1_default;
 var init_sha1 = __esm({
@@ -4317,7 +4317,7 @@ var require_util2 = __commonJS({
         return false;
       }
     }
-    function bytesMatch(bytes3, metadataList) {
+    function bytesMatch(bytes4, metadataList) {
       if (crypto4 === void 0) {
         return true;
       }
@@ -4337,14 +4337,14 @@ var require_util2 = __commonJS({
         if (expectedValue.endsWith("==")) {
           expectedValue = expectedValue.slice(0, -2);
         }
-        let actualValue = crypto4.createHash(algorithm).update(bytes3).digest("base64");
+        let actualValue = crypto4.createHash(algorithm).update(bytes4).digest("base64");
         if (actualValue.endsWith("==")) {
           actualValue = actualValue.slice(0, -2);
         }
         if (actualValue === expectedValue) {
           return true;
         }
-        let actualBase64URL = crypto4.createHash(algorithm).update(bytes3).digest("base64url");
+        let actualBase64URL = crypto4.createHash(algorithm).update(bytes4).digest("base64url");
         if (actualBase64URL.endsWith("==")) {
           actualBase64URL = actualBase64URL.slice(0, -2);
         }
@@ -4523,17 +4523,17 @@ var require_util2 = __commonJS({
       return input;
     }
     async function readAllBytes(reader) {
-      const bytes3 = [];
+      const bytes4 = [];
       let byteLength = 0;
       while (true) {
         const { done, value: chunk } = await reader.read();
         if (done) {
-          return Buffer.concat(bytes3, byteLength);
+          return Buffer.concat(bytes4, byteLength);
         }
         if (!isUint8Array(chunk)) {
           throw new TypeError("Received non-Uint8Array chunk");
         }
-        bytes3.push(chunk);
+        bytes4.push(chunk);
         byteLength += chunk.length;
       }
     }
@@ -5061,8 +5061,8 @@ var require_dataURL = __commonJS({
       return input.slice(start, position.position);
     }
     function stringPercentDecode(input) {
-      const bytes3 = encoder.encode(input);
-      return percentDecode(bytes3);
+      const bytes4 = encoder.encode(input);
+      return percentDecode(bytes4);
     }
     function percentDecode(input) {
       const output = [];
@@ -5175,11 +5175,11 @@ var require_dataURL = __commonJS({
         return "failure";
       }
       const binary = atob2(data);
-      const bytes3 = new Uint8Array(binary.length);
+      const bytes4 = new Uint8Array(binary.length);
       for (let byte = 0; byte < binary.length; byte++) {
-        bytes3[byte] = binary.charCodeAt(byte);
+        bytes4[byte] = binary.charCodeAt(byte);
       }
-      return bytes3;
+      return bytes4;
     }
     function collectAnHTTPQuotedString(input, position, extractValue) {
       const positionStart = position.position;
@@ -5426,27 +5426,27 @@ var require_file = __commonJS({
       }
     ]);
     function processBlobParts(parts, options) {
-      const bytes3 = [];
+      const bytes4 = [];
       for (const element of parts) {
         if (typeof element === "string") {
           let s = element;
           if (options.endings === "native") {
             s = convertLineEndingsNative(s);
           }
-          bytes3.push(encoder.encode(s));
+          bytes4.push(encoder.encode(s));
         } else if (types2.isAnyArrayBuffer(element) || types2.isTypedArray(element)) {
           if (!element.buffer) {
-            bytes3.push(new Uint8Array(element));
+            bytes4.push(new Uint8Array(element));
           } else {
-            bytes3.push(
+            bytes4.push(
               new Uint8Array(element.buffer, element.byteOffset, element.byteLength)
             );
           }
         } else if (isBlobLike(element)) {
-          bytes3.push(element);
+          bytes4.push(element);
         }
       }
-      return bytes3;
+      return bytes4;
     }
     function convertLineEndingsNative(s) {
       let nativeLineEnding = "\n";
@@ -5826,19 +5826,19 @@ Content-Type: ${value.type || "application/octet-stream"}\r
     function bodyMixinMethods(instance) {
       const methods = {
         blob() {
-          return specConsumeBody(this, (bytes3) => {
+          return specConsumeBody(this, (bytes4) => {
             let mimeType = bodyMimeType(this);
             if (mimeType === "failure") {
               mimeType = "";
             } else if (mimeType) {
               mimeType = serializeAMimeType(mimeType);
             }
-            return new Blob2([bytes3], { type: mimeType });
+            return new Blob2([bytes4], { type: mimeType });
           }, instance);
         },
         arrayBuffer() {
-          return specConsumeBody(this, (bytes3) => {
-            return new Uint8Array(bytes3).buffer;
+          return specConsumeBody(this, (bytes4) => {
+            return new Uint8Array(bytes4).buffer;
           }, instance);
         },
         text() {
@@ -5972,8 +5972,8 @@ Content-Type: ${value.type || "application/octet-stream"}\r
       const output = textDecoder.decode(buffer);
       return output;
     }
-    function parseJSONFromBytes(bytes3) {
-      return JSON.parse(utf8DecodeBytes(bytes3));
+    function parseJSONFromBytes(bytes4) {
+      return JSON.parse(utf8DecodeBytes(bytes4));
     }
     function bodyMimeType(object) {
       const { headersList } = object[kState];
@@ -12344,10 +12344,10 @@ var require_response = __commonJS({
         if (init !== null) {
           init = webidl.converters.ResponseInit(init);
         }
-        const bytes3 = textEncoder.encode(
+        const bytes4 = textEncoder.encode(
           serializeJavascriptValueToJSONString(data)
         );
-        const body = extractBody(bytes3);
+        const body = extractBody(bytes4);
         const relevantRealm = { settingsObject: {} };
         const responseObject = new _Response();
         responseObject[kRealm] = relevantRealm;
@@ -13686,12 +13686,12 @@ var require_fetch = __commonJS({
           processBodyError(response.error);
           return;
         }
-        const processBody = (bytes3) => {
-          if (!bytesMatch(bytes3, request.integrity)) {
+        const processBody = (bytes4) => {
+          if (!bytesMatch(bytes4, request.integrity)) {
             processBodyError("integrity mismatch");
             return;
           }
-          response.body = safelyExtractBody(bytes3)[0];
+          response.body = safelyExtractBody(bytes4)[0];
           fetchFinale(fetchParams, response);
         };
         await fullyReadBody(response.body, processBody, processBodyError);
@@ -14067,12 +14067,12 @@ var require_fetch = __commonJS({
       if (request.body == null && fetchParams.processRequestEndOfBody) {
         queueMicrotask(() => fetchParams.processRequestEndOfBody());
       } else if (request.body != null) {
-        const processBodyChunk = async function* (bytes3) {
+        const processBodyChunk = async function* (bytes4) {
           if (isCancelled(fetchParams)) {
             return;
           }
-          yield bytes3;
-          fetchParams.processRequestBodyChunkLength?.(bytes3.byteLength);
+          yield bytes4;
+          fetchParams.processRequestBodyChunkLength?.(bytes4.byteLength);
         };
         const processEndOfBody = () => {
           if (isCancelled(fetchParams)) {
@@ -14094,8 +14094,8 @@ var require_fetch = __commonJS({
         };
         requestBody = async function* () {
           try {
-            for await (const bytes3 of request.body.stream) {
-              yield* processBodyChunk(bytes3);
+            for await (const bytes4 of request.body.stream) {
+              yield* processBodyChunk(bytes4);
             }
             processEndOfBody();
           } catch (err) {
@@ -14151,33 +14151,33 @@ var require_fetch = __commonJS({
       fetchParams.controller.on("terminated", onAborted);
       fetchParams.controller.resume = async () => {
         while (true) {
-          let bytes3;
+          let bytes4;
           let isFailure;
           try {
             const { done, value } = await fetchParams.controller.next();
             if (isAborted(fetchParams)) {
               break;
             }
-            bytes3 = done ? void 0 : value;
+            bytes4 = done ? void 0 : value;
           } catch (err) {
             if (fetchParams.controller.ended && !timingInfo.encodedBodySize) {
-              bytes3 = void 0;
+              bytes4 = void 0;
             } else {
-              bytes3 = err;
+              bytes4 = err;
               isFailure = true;
             }
           }
-          if (bytes3 === void 0) {
+          if (bytes4 === void 0) {
             readableStreamClose(fetchParams.controller.controller);
             finalizeResponse(fetchParams, response);
             return;
           }
-          timingInfo.decodedBodySize += bytes3?.byteLength ?? 0;
+          timingInfo.decodedBodySize += bytes4?.byteLength ?? 0;
           if (isFailure) {
-            fetchParams.controller.terminate(bytes3);
+            fetchParams.controller.terminate(bytes4);
             return;
           }
-          fetchParams.controller.controller.enqueue(new Uint8Array(bytes3));
+          fetchParams.controller.controller.enqueue(new Uint8Array(bytes4));
           if (isErrored(stream2)) {
             fetchParams.controller.terminate();
             return;
@@ -14298,9 +14298,9 @@ var require_fetch = __commonJS({
               if (fetchParams.controller.dump) {
                 return;
               }
-              const bytes3 = chunk;
-              timingInfo.encodedBodySize += bytes3.byteLength;
-              return this.body.push(bytes3);
+              const bytes4 = chunk;
+              timingInfo.encodedBodySize += bytes4.byteLength;
+              return this.body.push(bytes4);
             },
             onComplete() {
               if (this.abort) {
@@ -14749,7 +14749,7 @@ var require_util4 = __commonJS({
       fr[kError] = null;
       const stream2 = blob.stream();
       const reader = stream2.getReader();
-      const bytes3 = [];
+      const bytes4 = [];
       let chunkPromise = reader.read();
       let isFirstChunk = true;
       (async () => {
@@ -14763,7 +14763,7 @@ var require_util4 = __commonJS({
             }
             isFirstChunk = false;
             if (!done && types2.isUint8Array(value)) {
-              bytes3.push(value);
+              bytes4.push(value);
               if ((fr[kLastProgressEventFired] === void 0 || Date.now() - fr[kLastProgressEventFired] >= 50) && !fr[kAborted]) {
                 fr[kLastProgressEventFired] = Date.now();
                 queueMicrotask(() => {
@@ -14775,7 +14775,7 @@ var require_util4 = __commonJS({
               queueMicrotask(() => {
                 fr[kState] = "done";
                 try {
-                  const result = packageData(bytes3, type, blob.type, encodingName);
+                  const result = packageData(bytes4, type, blob.type, encodingName);
                   if (fr[kAborted]) {
                     return;
                   }
@@ -14815,7 +14815,7 @@ var require_util4 = __commonJS({
       });
       reader.dispatchEvent(event);
     }
-    function packageData(bytes3, type, mimeType, encodingName) {
+    function packageData(bytes4, type, mimeType, encodingName) {
       switch (type) {
         case "DataURL": {
           let dataURL = "data:";
@@ -14825,7 +14825,7 @@ var require_util4 = __commonJS({
           }
           dataURL += ";base64,";
           const decoder = new StringDecoder2("latin1");
-          for (const chunk of bytes3) {
+          for (const chunk of bytes4) {
             dataURL += btoa(decoder.write(chunk));
           }
           dataURL += btoa(decoder.end());
@@ -14845,16 +14845,16 @@ var require_util4 = __commonJS({
           if (encoding === "failure") {
             encoding = "UTF-8";
           }
-          return decode(bytes3, encoding);
+          return decode(bytes4, encoding);
         }
         case "ArrayBuffer": {
-          const sequence = combineByteSequences(bytes3);
+          const sequence = combineByteSequences(bytes4);
           return sequence.buffer;
         }
         case "BinaryString": {
           let binaryString = "";
           const decoder = new StringDecoder2("latin1");
-          for (const chunk of bytes3) {
+          for (const chunk of bytes4) {
             binaryString += decoder.write(chunk);
           }
           binaryString += decoder.end();
@@ -14863,14 +14863,14 @@ var require_util4 = __commonJS({
       }
     }
     function decode(ioQueue, encoding) {
-      const bytes3 = combineByteSequences(ioQueue);
-      const BOMEncoding = BOMSniffing(bytes3);
+      const bytes4 = combineByteSequences(ioQueue);
+      const BOMEncoding = BOMSniffing(bytes4);
       let slice = 0;
       if (BOMEncoding !== null) {
         encoding = BOMEncoding;
         slice = BOMEncoding === "UTF-8" ? 3 : 2;
       }
-      const sliced = bytes3.slice(slice);
+      const sliced = bytes4.slice(slice);
       return new TextDecoder(encoding).decode(sliced);
     }
     function BOMSniffing(ioQueue) {
@@ -15449,9 +15449,9 @@ var require_cache = __commonJS({
           // 16.
         };
         operations.push(operation);
-        const bytes3 = await bodyReadPromise.promise;
+        const bytes4 = await bodyReadPromise.promise;
         if (clonedResponse.body != null) {
-          clonedResponse.body.source = bytes3;
+          clonedResponse.body.source = bytes4;
         }
         const cacheJobPromise = createDeferredPromise();
         let errorData = null;
@@ -23101,7 +23101,7 @@ var require_github = __commonJS({
 var require_bytes = __commonJS({
   "node_modules/bytes/index.js"(exports2, module2) {
     "use strict";
-    module2.exports = bytes3;
+    module2.exports = bytes4;
     module2.exports.format = format;
     module2.exports.parse = parse2;
     var formatThousandsRegExp = /\B(?=(\d{3})+(?!\d))/g;
@@ -23115,7 +23115,7 @@ var require_bytes = __commonJS({
       pb: Math.pow(1024, 5)
     };
     var parseRegExp = /^((-|\+)?(\d+(?:\.\d+)?)) *(kb|mb|gb|tb|pb)$/i;
-    function bytes3(value, options) {
+    function bytes4(value, options) {
       if (typeof value === "string") {
         return parse2(value);
       }
@@ -29446,7 +29446,7 @@ var emojiForStatus = (status) => {
     case 4 /* INFO */:
       return "";
     default:
-      throw new Error(`Unknown status "${status}" received`);
+      throw new Error(`[emojiForStatus] Unknown status "${status}" received`);
   }
 };
 var labelForStatus = (status) => {
@@ -29462,7 +29462,7 @@ var labelForStatus = (status) => {
     case 4 /* INFO */:
       return "Info";
     default:
-      throw new Error(`Unknown status "${status}" received`);
+      throw new Error(`[labelForStatus] Unknown status "${status}" received`);
   }
 };
 var statusFromString = (str) => {
@@ -29478,7 +29478,7 @@ var statusFromString = (str) => {
     case "INFO":
       return 4 /* INFO */;
     default:
-      throw new Error(`Unknown status of "${str}" received`);
+      throw new Error(`[statusFromString] Unknown status of "${str}" received`);
   }
 };
 
@@ -29612,6 +29612,7 @@ var extractConfig = () => ({
 });
 
 // src/metafile-analysis.ts
+var import_bytes3 = __toESM(require_bytes());
 var getRequiredInput = (input) => core2.getInput(input, { required: true, trimWhitespace: true });
 var analyze = async () => {
   core2.info("Received analysis request!");
@@ -29645,21 +29646,53 @@ var analyze = async () => {
     import_github.context.repo.owner,
     import_github.context.repo.repo
   );
-  const toMake = Object.values(Status).map((type) => {
+  const toMake = Object.values(Status).filter((v) => !isNaN(v)).map((type) => {
     commentsByStatus[type]?.sort((a, b) => b.totalSize - a.totalSize);
     return {
       type,
       comments: (commentsByStatus[type] ?? []).map((c) => c.comment)
     };
-  }).filter((r) => r.comments?.length > 0 && r.type <= minThreshold);
+  });
+  const toDisplayBreakdown = toMake.filter(
+    (r) => r.comments?.length > 0 && r.type <= minThreshold
+  );
   await prCommenter.upsertComment(
     prNumber,
-    `${header}
+    `${header ?? "<h2>Metadata File Analysis</h2>"}
 
-  ${toMake.map(({ type, comments }) => `<h3>${labelForStatus(type)} (${emojiForStatus(type)})</h3>${comments.join("\n\n")}`).join("\n\n")}
+<h3>Summary</h3>
+
+| <strong>St.</strong> | <strong>Level</strong> | <strong>Range</strong> | <strong>Percentage</strong> | <strong>Count / Total</strong> |
+|----|----|----|----|----|
+${toMake.map(({ type, comments }) => {
+      const minSize = actionConfig.thresholds[labelForStatus(
+        type
+      ).toLowerCase()];
+      return `| ${[
+        emojiForStatus(type),
+        labelForStatus(type),
+        minSize ? "> " + (0, import_bytes3.default)(
+          actionConfig.thresholds[labelForStatus(
+            type
+          ).toLowerCase()]
+        ) : "",
+        `${toDecimalPlaces(comments.length / files.length * 100, 2)}%`,
+        `${comments.length} / ${files.length}`
+      ].join(" | ")} |`;
+    }).join("\n")}
+
+${toDisplayBreakdown.length > 0 && "<h3>Key issues</h3>"}
+
+${toDisplayBreakdown.map(({ type, comments }) => `<h3>${emojiForStatus(type)} ${labelForStatus(type)} ${emojiForStatus(type)}</h3>${comments.join("\n\n")}`).join("\n\n")}
   
-  ${footer}`
+${footer}
+
+<p align="right">Report generated by <a href="https://github.com/sv-oss/metafile-analysis-action" target="_blank">sv-oss/metafile-analysis-action</a></p>`
   );
+};
+var toDecimalPlaces = (v, decimals) => {
+  const power = Math.pow(10, decimals);
+  return Math.round(v * power) / power;
 };
 
 // src/index.ts
