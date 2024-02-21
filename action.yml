@@ -33,7 +33,7 @@ inputs:
     default: "25kb"
   comment-min-threshold:
     description: "The minimum severity to render in the comment. By default, all files will be rendered. Accepted values are CRITICAL/HIGH/MEDIUM/LOW/INFO"
-    default: "INFO"
+    default: "LOW"
   # The below are not implemented, but could be a good enhancement in the future 
   # check-mark-failure:
   #   description: "Whether to add a check to the Pull Request as a failure when any file meets the threshold limit"
