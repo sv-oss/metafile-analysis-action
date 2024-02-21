@@ -89,6 +89,12 @@ ${toMake
           type,
         ).toLowerCase() as keyof typeof actionConfig.thresholds
       ];
+    let percentage = (comments.length / files.length) * 100;
+
+    // handle 0/0 case
+    if (isNaN(percentage)) {
+      percentage = 0;
+    }
 
     return `| ${[
       emojiForStatus(type),
@@ -109,7 +115,7 @@ ${toMake
   })
   .join("\n")}
 
-${toDisplayBreakdown.length > 0 && "<h3>Key issues</h3>"}
+${toDisplayBreakdown.length > 0 ? "<h3>Key issues</h3>" : ""}
 
 ${toDisplayBreakdown.map(({ type, comments }) => `<h3>${emojiForStatus(type)} ${labelForStatus(type)} ${emojiForStatus(type)}</h3>${comments.join("\n\n")}`).join("\n\n")}
   
