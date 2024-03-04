@@ -5,6 +5,10 @@ inputs:
     description: "The Github token to use"
     required: true
     default: ${{ github.token }}
+  generate-metafiles-command:
+    description: "The command to execute within the repo to generate the metafiles in the directory"
+    required: true
+    default: "npm run synth" # Note - default to be removed in future release
   metafile-directory:
     description: "The directory in the file-system where to source all metafiles"
     required: true
@@ -34,16 +38,15 @@ inputs:
   comment-min-threshold:
     description: "The minimum severity to render in the comment. By default, all files will be rendered. Accepted values are CRITICAL/HIGH/MEDIUM/LOW/INFO"
     default: "LOW"
-  # The below are not implemented, but could be a good enhancement in the future 
-  # check-mark-failure:
-  #   description: "Whether to add a check to the Pull Request as a failure when any file meets the threshold limit"
-  #   default: "false"
-  # check-mark-file-count:
-  #   description: "The number of files that need to reach the threshold to mark the Pull Request as a failure"
-  #   default: "1"
-  # check-mark-min-threshold:
-  #   description: "The threshold for considering a file as a failure for whether or not to add a check"
-  #   default: "HIGH"
+  check-mark-failure:
+    description: "Whether to add a check to the Pull Request as a failure when any file meets the threshold limit"
+    default: "true"
+  check-mark-file-count:
+    description: "The number of files that need to reach the threshold to mark the Pull Request as a failure"
+    default: "1"
+  check-mark-min-threshold:
+    description: "The threshold for considering a file as a failure for whether or not to add a check"
+    default: "HIGH"
 
 runs:
   using: "node20"

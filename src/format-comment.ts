@@ -2,11 +2,12 @@ import { readFileSync } from "fs";
 import bytes from "bytes";
 import { ActionConfig } from "./config";
 import { emojiForStatus, statusForSize } from "./status-data";
+import path from "path";
 
 const toKb = (size: number) => bytes(size);
 
 export function buildMetadataForFile(
-  fullName: string,
+  fileName: string,
   metafile: ReturnType<typeof breakdownMetafile>,
   actionConfig: ActionConfig,
 ) {
@@ -16,8 +17,6 @@ export function buildMetadataForFile(
   );
 
   const status = statusForSize(metadata.totalSize, actionConfig.thresholds);
-
-  const fileName = fullName.replace(".meta.json", "");
 
   return {
     status,
@@ -37,10 +36,15 @@ export function buildMetadataForFile(
   };
 }
 
-export function breakdownMetafile(filePath: string) {
+export function breakdownMetafile(
+  filePath: string,
+  directory: string,
+): BreakdownMetafileResponse[] {
   let srcSize = 0;
   const topLevelNodeModules: Record<string, number> = {};
-  const metafile = JSON.parse(readFileSync(filePath, "utf-8"));
+  const metafile = JSON.parse(
+    readFileSync(path.join(directory, filePath), "utf-8"),
+  );
 
   return Object.entries(
     metafile.outputs as Record<
@@ -81,7 +85,17 @@ export function breakdownMetafile(filePath: string) {
         srcFile: {
           size: srcSize,
         },
+        filePath: filePath.replace(".meta.json", ""),
       };
     })
-    .filter((i) => !!i);
+    .filter((i) => !!i) as BreakdownMetafileResponse[];
 }
+
+export type BreakdownMetafileResponse = {
+  nodeModules: { name: string; size: number }[];
+  totalSize: number;
+  srcFile: {
+    size: number;
+  };
+  filePath: string;
+};

@@ -1,5 +1,6 @@
 import bytes from "bytes";
 import * as core from "@actions/core";
+import { Status, statusFromString } from "./status-data";
 
 export interface ActionConfig {
   thresholds: {
@@ -9,6 +10,7 @@ export interface ActionConfig {
     low: number;
   };
   largeNodeModulesThreshold: number;
+  commentMinThreshold: Status;
 }
 
 export const extractConfig = (): ActionConfig => ({
@@ -21,4 +23,5 @@ export const extractConfig = (): ActionConfig => ({
   largeNodeModulesThreshold: bytes.parse(
     core.getInput("comment-large-node-modules-threshold"),
   ),
+  commentMinThreshold: statusFromString(core.getInput("comment-min-threshold")),
 });

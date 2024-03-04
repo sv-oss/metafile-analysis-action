@@ -1,131 +1,108 @@
-import { sync as globSync } from "glob";
 import * as core from "@actions/core";
-import { context, getOctokit } from "@actions/github";
-import path from "path";
-import { breakdownMetafile, buildMetadataForFile } from "./format-comment";
-import { GithubCommentor } from "./github/make-pr-comment";
+import { context } from "@actions/github";
 import { extractConfig } from "./config";
 import {
-  Status,
-  emojiForStatus,
-  labelForStatus,
-  statusFromString,
-} from "./status-data";
-import bytes from "bytes";
+  buildComment,
+  checkoutBranch,
+  commentOnPullRequest,
+  compareFileSize,
+  groupCoverageByStatus,
+  generateMetafiles,
+  generateSummary,
+  getComparisonBranch,
+  summarizeMetafiles,
+  assignStatusCheck,
+} from "./steps";
+import { GithubApiWrapper } from "./github/api-wrapper";
+import { statusFromString } from "./status-data";
 
 const getRequiredInput = (input: string): string =>
   core.getInput(input, { required: true, trimWhitespace: true });
 
 export const analyze = async () => {
-  core.info("Received analysis request!");
-  const prNumber = context?.payload?.pull_request?.number;
-  const ghToken = getRequiredInput("github-token");
   const metaDirectory = getRequiredInput("metafile-directory");
   const metaGlob = core.getInput("metafile-glob");
-  const header = core.getInput("comment-header");
-  const footer = core.getInput("comment-footer");
-  const minThreshold = statusFromString(core.getInput("comment-min-threshold"));
+  const generateMetafilesCommand = getRequiredInput(
+    "generate-metafiles-command",
+  );
+  const githubToken = getRequiredInput("github-token");
+  const config = extractConfig();
 
-  if (!prNumber) {
-    throw new Error(
-      "Metafile Analysis is only currently supported in the PR Context",
-    );
+  core.info("Starting execution");
+
+  await generateMetafiles.execute({ command: generateMetafilesCommand });
+  core.info("Generated metafiles for latest");
+
+  const latestCoverage = await summarizeMetafiles.execute({
+    directory: metaDirectory,
+    glob: metaGlob,
+  });
+  core.info("parsed latest coverage");
+
+  const comparisonBranch = await getComparisonBranch.execute({
+    context,
+  });
+
+  core.info(`Derived comparison branch as ${comparisonBranch}`);
+
+  let fileDeltas = "";
+
+  if (comparisonBranch) {
+    await checkoutBranch.execute(comparisonBranch);
+    core.info(`Checked out comparison branch`);
+    await generateMetafiles.execute({ command: generateMetafilesCommand });
+    core.info(`Generating metafiles for comparison`);
+
+    const previousCoverage = await summarizeMetafiles.execute({
+      directory: metaDirectory,
+      glob: metaGlob,
+    });
+    core.info(`Parsed previous coverage`);
+
+    fileDeltas = await compareFileSize.execute({
+      previousCoverage,
+      latestCoverage,
+      config,
+    });
+
+    core.info(`Generated file size delta analysis`);
+    await checkoutBranch.execute(context.payload.pull_request!.head.ref);
   }
 
-  const files = globSync(metaGlob, {
-    cwd: metaDirectory,
-  });
-
-  const actionConfig = extractConfig();
-
-  const commentsByStatus: Record<
-    string,
-    ReturnType<typeof buildMetadataForFile>[]
-  > = {};
-
-  files.forEach((file) => {
-    const metadata = breakdownMetafile(path.join(metaDirectory, file));
-    const data = buildMetadataForFile(file, metadata, actionConfig);
-    if (!(data.status in commentsByStatus)) {
-      commentsByStatus[data.status] = [];
-    }
-
-    commentsByStatus[data.status].push(data);
-  });
-
-  const prCommenter = new GithubCommentor(
-    getOctokit(ghToken),
+  const githubApi = new GithubApiWrapper(
+    githubToken,
     context.repo.owner,
     context.repo.repo,
   );
 
-  const toMake = Object.values(Status)
-    .filter((v) => !isNaN(v as any))
-    .map((type) => {
-      commentsByStatus[type]?.sort((a, b) => b.totalSize - a.totalSize);
-      return {
-        type: type as Status,
-        comments: (commentsByStatus[type] ?? []).map((c) => c.comment),
-      };
-    });
+  const groupedCoverage = await groupCoverageByStatus.execute({
+    coverageFiles: latestCoverage,
+    thresholds: config,
+  });
+  core.info(`Grouped current details by status`);
 
-  const toDisplayBreakdown = toMake.filter(
-    (r) => r.comments?.length > 0 && r.type <= minThreshold,
-  );
+  const metafileSummary = await generateSummary.execute({
+    groupedCoverage,
+    actionConfig: config,
+    fileCount: latestCoverage.length,
+  });
+  core.info(`Generated a summary of the latest values`);
 
-  await prCommenter.upsertComment(
-    prNumber,
-    `${header ?? "<h2>Metadata File Analysis</h2>"}
+  const commentToMake = await buildComment.execute({
+    fileDeltas,
+    metafileSummary,
+  });
 
-<h3>Summary</h3>
+  await commentOnPullRequest.execute({ commentToMake, githubApi, context });
 
-| <strong>St.</strong> | <strong>Level</strong> | <strong>Range</strong> | <strong>Percentage</strong> | <strong>Count / Total</strong> |
-|----|----|----|----|----|
-${toMake
-  .map(({ type, comments }) => {
-    const minSize =
-      actionConfig.thresholds[
-        labelForStatus(
-          type,
-        ).toLowerCase() as keyof typeof actionConfig.thresholds
-      ];
-    let percentage = (comments.length / files.length) * 100;
-
-    // handle 0/0 case
-    if (isNaN(percentage)) {
-      percentage = 0;
-    }
-
-    return `| ${[
-      emojiForStatus(type),
-      labelForStatus(type),
-      minSize
-        ? "> " +
-          bytes(
-            actionConfig.thresholds[
-              labelForStatus(
-                type,
-              ).toLowerCase() as keyof typeof actionConfig.thresholds
-            ],
-          )
-        : "",
-      `${toDecimalPlaces((comments.length / files.length) * 100, 2)}%`,
-      `${comments.length} / ${files.length}`,
-    ].join(" | ")} |`;
-  })
-  .join("\n")}
-
-${toDisplayBreakdown.length > 0 ? "<h3>Key issues</h3>" : ""}
-
-${toDisplayBreakdown.map(({ type, comments }) => `<h3>${emojiForStatus(type)} ${labelForStatus(type)} ${emojiForStatus(type)}</h3>${comments.join("\n\n")}`).join("\n\n")}
-  
-${footer}
-
-<p align="right">Report generated by <a href="https://github.com/sv-oss/metafile-analysis-action" target="_blank">sv-oss/metafile-analysis-action</a></p>`,
-  );
-};
-
-const toDecimalPlaces = (v: number, decimals: number) => {
-  const power = Math.pow(10, decimals);
-  return Math.round(v * power) / power;
+  await assignStatusCheck.execute({
+    actionConfig: config,
+    context,
+    latestCoverage,
+    markFailures: core.getBooleanInput("check-mark-failure"),
+    minFileCount: parseInt(getRequiredInput("check-mark-file-count"), 10),
+    minThreshold: statusFromString(
+      getRequiredInput("check-mark-min-threshold"),
+    ),
+  });
 };
