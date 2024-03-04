@@ -37,7 +37,7 @@ export const emojiForStatus = (status: Status) => {
     case Status.LOW:
       return "⚠";
     case Status.INFO:
-      return "";
+      return "🟢";
     default:
       throw new Error(`[emojiForStatus] Unknown status "${status}" received`);
   }
