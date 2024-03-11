@@ -23432,9 +23432,10 @@ var generateSummary = ({
       const status = statusForSize(currentSize, config.thresholds);
       const prevStatus = statusForSize(file.prev.totalSize, config.thresholds);
       const deltaPercentage = currentSize / file.prev.totalSize * 100;
-      let deltaRender = `\u2B07\uFE0F -${toDecimalPlaces(100 - deltaPercentage, 2)}%`;
+      const deltaDiff = Math.abs(currentSize - file.prev.totalSize);
+      let deltaRender = `\u2B07\uFE0F -${toDecimalPlaces(100 - deltaPercentage, 2)}%, -${(0, import_bytes2.default)(deltaDiff)}`;
       if (deltaPercentage > 100) {
-        deltaRender = `\u{1F53A} +${toDecimalPlaces(deltaPercentage - 100, 2)}%`;
+        deltaRender = `\u{1F53A} +${toDecimalPlaces(deltaPercentage - 100, 2)}%, +${(0, import_bytes2.default)(deltaDiff)}`;
       }
       table.addRow([
         `${emojiForStatus(prevStatus)} \u2192 ${emojiForStatus(status)}`,
@@ -23568,7 +23569,7 @@ var execute6 = async ({
   const commentsByStatus = {};
   coverageFiles.forEach((file) => {
     const data = buildMetadataForFile(file.filePath, [file], thresholds);
-    if (!(data.status in commentsByStatus)) {
+    if (!(labelForStatus(data.status) in commentsByStatus)) {
       commentsByStatus[labelForStatus(data.status)] = [];
     }
     commentsByStatus[labelForStatus(data.status)].push(data);

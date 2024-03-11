@@ -19,7 +19,7 @@ export const execute = async ({
 
   coverageFiles.forEach((file) => {
     const data = buildMetadataForFile(file!.filePath, [file!], thresholds);
-    if (!(data.status in commentsByStatus)) {
+    if (!(labelForStatus(data.status) in commentsByStatus)) {
       commentsByStatus[labelForStatus(data.status)] = [];
     }
 

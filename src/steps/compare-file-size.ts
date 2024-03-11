@@ -73,11 +73,12 @@ const generateSummary = ({
       const currentSize = file.curr.totalSize;
       const status = statusForSize(currentSize, config.thresholds);
       const prevStatus = statusForSize(file.prev.totalSize, config.thresholds);
-      const deltaPercentage = (currentSize / file.prev!.totalSize) * 100;
+      const deltaPercentage = (currentSize / file.prev.totalSize) * 100;
+      const deltaDiff = Math.abs(currentSize - file.prev.totalSize);
 
-      let deltaRender = `⬇️ -${toDecimalPlaces(100 - deltaPercentage, 2)}%`;
+      let deltaRender = `⬇️ -${toDecimalPlaces(100 - deltaPercentage, 2)}%, -${bytes(deltaDiff)}`;
       if (deltaPercentage > 100) {
-        deltaRender = `🔺 +${toDecimalPlaces(deltaPercentage - 100, 2)}%`;
+        deltaRender = `🔺 +${toDecimalPlaces(deltaPercentage - 100, 2)}%, +${bytes(deltaDiff)}`;
       }
 
       table.addRow([
