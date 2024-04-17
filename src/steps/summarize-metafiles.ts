@@ -1,5 +1,5 @@
-import { globSync } from "glob";
-import { breakdownMetafile } from "../format-comment";
+import { globSync } from 'glob';
+import { breakdownMetafile } from '../format-comment';
 
 export type SummarizeMetafilesRequest = {
   readonly directory: string;

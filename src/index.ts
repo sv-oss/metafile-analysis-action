@@ -1,3 +1,3 @@
-import { analyze } from "./metafile-analysis";
+import { analyze } from './metafile-analysis';
 
-analyze();
+void analyze();

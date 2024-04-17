@@ -1,4 +1,4 @@
-import { ActionConfig } from "./config";
+import { ActionConfig } from './config';
 
 export enum Status {
   CRITICAL = 0,
@@ -10,7 +10,7 @@ export enum Status {
 
 export const statusForSize = (
   size: number,
-  thresholds: ActionConfig["thresholds"],
+  thresholds: ActionConfig['thresholds'],
 ) => {
   switch (true) {
     case size > thresholds.critical:
@@ -29,15 +29,15 @@ export const statusForSize = (
 export const emojiForStatus = (status: Status) => {
   switch (status) {
     case Status.CRITICAL:
-      return "🚨";
+      return '🚨';
     case Status.HIGH:
-      return "🚩";
+      return '🚩';
     case Status.MEDIUM:
-      return "⚠️";
+      return '⚠️';
     case Status.LOW:
-      return "⚠";
+      return '⚠';
     case Status.INFO:
-      return "🟢";
+      return '🟢';
     default:
       throw new Error(`[emojiForStatus] Unknown status "${status}" received`);
   }
@@ -46,15 +46,15 @@ export const emojiForStatus = (status: Status) => {
 export const labelForStatus = (status: Status) => {
   switch (status) {
     case Status.CRITICAL:
-      return "Critical";
+      return 'Critical';
     case Status.HIGH:
-      return "High";
+      return 'High';
     case Status.MEDIUM:
-      return "Medium";
+      return 'Medium';
     case Status.LOW:
-      return "Low";
+      return 'Low';
     case Status.INFO:
-      return "Info";
+      return 'Info';
     default:
       throw new Error(`[labelForStatus] Unknown status "${status}" received`);
   }
@@ -62,15 +62,15 @@ export const labelForStatus = (status: Status) => {
 
 export const statusFromString = (str: string) => {
   switch (str.toUpperCase()) {
-    case "CRITICAL":
+    case 'CRITICAL':
       return Status.CRITICAL;
-    case "HIGH":
+    case 'HIGH':
       return Status.HIGH;
-    case "MEDIUM":
+    case 'MEDIUM':
       return Status.MEDIUM;
-    case "LOW":
+    case 'LOW':
       return Status.LOW;
-    case "INFO":
+    case 'INFO':
       return Status.INFO;
     default:
       throw new Error(`[statusFromString] Unknown status of "${str}" received`);

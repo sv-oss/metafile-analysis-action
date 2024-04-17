@@ -1,18 +1,18 @@
-import * as core from "@actions/core";
-import { generateSummary } from ".";
+import * as core from '@actions/core';
+import { generateSummary } from '.';
 
 export type BuildCommentRequest = {
   readonly fileDeltas: string;
   readonly metafileSummary: Awaited<
-    ReturnType<(typeof generateSummary)["execute"]>
+  ReturnType<(typeof generateSummary)['execute']>
   >;
 };
 
 export const execute = async (req: BuildCommentRequest) => {
-  const header = core.getInput("comment-header");
-  const footer = core.getInput("comment-footer");
+  const header = core.getInput('comment-header');
+  const footer = core.getInput('comment-footer');
 
-  return `${header ?? "<h2>Metadata File Analysis</h2>"}
+  return `${header ?? '<h2>Metadata File Analysis</h2>'}
 
   <h3>Summary</h3>
 
