@@ -26363,7 +26363,7 @@ var LRUCache = class _LRUCache {
   }
 };
 
-// node_modules/path-scurry/dist/mjs/index.js
+// node_modules/path-scurry/dist/esm/index.js
 var import_path2 = require("path");
 var import_url = require("url");
 var actualFS = __toESM(require("fs"), 1);
@@ -27248,7 +27248,7 @@ var Minipass = class extends import_events.EventEmitter {
   }
 };
 
-// node_modules/path-scurry/dist/mjs/index.js
+// node_modules/path-scurry/dist/esm/index.js
 var realpathSync = import_fs2.realpathSync.native;
 var defaultFS = {
   lstatSync: import_fs2.lstatSync,
@@ -27820,7 +27820,7 @@ var PathBase = class {
     }
     try {
       const read = await this.#fs.promises.readlink(this.fullpath());
-      const linkTarget = this.parent.resolve(read);
+      const linkTarget = (await this.parent.realpath())?.resolve(read);
       if (linkTarget) {
         return this.#linkTarget = linkTarget;
       }
@@ -27845,7 +27845,7 @@ var PathBase = class {
     }
     try {
       const read = this.#fs.readlinkSync(this.fullpath());
-      const linkTarget = this.parent.resolve(read);
+      const linkTarget = this.parent.realpathSync()?.resolve(read);
       if (linkTarget) {
         return this.#linkTarget = linkTarget;
       }
@@ -27857,7 +27857,9 @@ var PathBase = class {
   #readdirSuccess(children) {
     this.#type |= READDIR_CALLED;
     for (let p = children.provisional; p < children.length; p++) {
-      children[p].#markENOENT();
+      const c = children[p];
+      if (c)
+        c.#markENOENT();
     }
   }
   #markENOENT() {
@@ -29152,6 +29154,10 @@ var Ignore = class {
         if (!parsed || !globParts) {
           throw new Error("invalid pattern object");
         }
+        while (parsed[0] === "." && globParts[0] === ".") {
+          parsed.shift();
+          globParts.shift();
+        }
         const p = new Pattern(parsed, globParts, 0, platform);
         const m = new Minimatch(p.globString(), mmopts);
         const children = globParts[globParts.length - 1] === "**";
@@ -29491,10 +29497,17 @@ var GlobUtil = class {
       e = rpc;
     }
     const needStat = e.isUnknown() || this.opts.stat;
-    return this.matchCheckTest(needStat ? await e.lstat() : e, ifDir);
+    const s = needStat ? await e.lstat() : e;
+    if (this.opts.follow && this.opts.nodir && s?.isSymbolicLink()) {
+      const target = await s.realpath();
+      if (target && (target.isUnknown() || this.opts.stat)) {
+        await target.lstat();
+      }
+    }
+    return this.matchCheckTest(s, ifDir);
   }
   matchCheckTest(e, ifDir) {
-    return e && (this.maxDepth === Infinity || e.depth() <= this.maxDepth) && (!ifDir || e.canReaddir()) && (!this.opts.nodir || !e.isDirectory()) && !this.#ignored(e) ? e : void 0;
+    return e && (this.maxDepth === Infinity || e.depth() <= this.maxDepth) && (!ifDir || e.canReaddir()) && (!this.opts.nodir || !e.isDirectory()) && (!this.opts.nodir || !this.opts.follow || !e.isSymbolicLink() || !e.realpathCached()?.isDirectory()) && !this.#ignored(e) ? e : void 0;
   }
   matchCheckSync(e, ifDir) {
     if (ifDir && this.opts.nodir)
@@ -29507,7 +29520,14 @@ var GlobUtil = class {
       e = rpc;
     }
     const needStat = e.isUnknown() || this.opts.stat;
-    return this.matchCheckTest(needStat ? e.lstatSync() : e, ifDir);
+    const s = needStat ? e.lstatSync() : e;
+    if (this.opts.follow && this.opts.nodir && s?.isSymbolicLink()) {
+      const target = s.realpathSync();
+      if (target && (target?.isUnknown() || this.opts.stat)) {
+        target.lstatSync();
+      }
+    }
+    return this.matchCheckTest(s, ifDir);
   }
   matchFinish(e, absolute) {
     if (this.#ignored(e))
