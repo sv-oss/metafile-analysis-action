@@ -1,10 +1,10 @@
-import { summarizeMetafiles } from ".";
-import { ActionConfig } from "../config";
-import { buildMetadataForFile } from "../format-comment";
-import { labelForStatus } from "../status-data";
+import { summarizeMetafiles } from '.';
+import { ActionConfig } from '../config';
+import { buildMetadataForFile } from '../format-comment';
+import { labelForStatus } from '../status-data';
 
 export type GroupCoverageByStatusRequest = {
-  coverageFiles: Awaited<ReturnType<(typeof summarizeMetafiles)["execute"]>>;
+  coverageFiles: Awaited<ReturnType<(typeof summarizeMetafiles)['execute']>>;
   thresholds: ActionConfig;
 };
 
@@ -13,8 +13,8 @@ export const execute = async ({
   thresholds,
 }: GroupCoverageByStatusRequest) => {
   const commentsByStatus: Record<
-    string,
-    ReturnType<typeof buildMetadataForFile>[]
+  string,
+  ReturnType<typeof buildMetadataForFile>[]
   > = {};
 
   coverageFiles.forEach((file) => {

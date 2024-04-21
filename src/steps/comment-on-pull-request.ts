@@ -1,5 +1,5 @@
-import { GithubApiWrapper } from "../github/api-wrapper";
-import { Context } from "@actions/github/lib/context";
+import { Context } from '@actions/github/lib/context';
+import { GithubApiWrapper } from '../github/api-wrapper';
 
 export type CommentOnPullRequestRequest = {
   githubApi: GithubApiWrapper;

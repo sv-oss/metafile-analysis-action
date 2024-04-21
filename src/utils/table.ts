@@ -16,11 +16,11 @@ export class Table {
   render() {
     return [
       // headers
-      `| ${this.columns.map((v) => `<strong>${v}</strong>`).join(" | ")} |`,
+      `| ${this.columns.map((v) => `<strong>${v}</strong>`).join(' | ')} |`,
       // line break to indicate headers
-      `| ${this.columns.map(() => "---").join(" | ")} |`,
+      `| ${this.columns.map(() => '---').join(' | ')} |`,
       // actual data
-      ...this.rows.map((row) => `| ${row.join(" | ")} |`),
-    ].join("\n");
+      ...this.rows.map((row) => `| ${row.join(' | ')} |`),
+    ].join('\n');
   }
 }

@@ -1,12 +1,11 @@
-import { Context } from "@actions/github/lib/context";
-import { BreakdownMetafileResponse } from "../format-comment";
-import { Status, labelForStatus } from "../status-data";
-import { ActionConfig } from "../config";
-import { GithubApiWrapper } from "../github/api-wrapper";
+import { context } from '@actions/github';
+import { ActionConfig } from '../config';
+import { BreakdownMetafileResponse } from '../format-comment';
+import { Status, labelForStatus } from '../status-data';
 
 export type AssignStatusCheckRequest = {
   readonly latestCoverage: BreakdownMetafileResponse[];
-  readonly context: Context;
+  readonly context: typeof context;
   readonly markFailures: boolean;
   readonly minFileCount: number;
   readonly minThreshold: Status;

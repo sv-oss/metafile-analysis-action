@@ -1,18 +1,18 @@
-import bytes from "bytes";
-import { groupCoverageByStatus } from ".";
-import { ActionConfig } from "../config";
+import bytes from 'bytes';
+import { groupCoverageByStatus } from '.';
+import { ActionConfig } from '../config';
 import {
   Status,
   emojiForStatus,
   labelForStatus,
   statusFromString,
-} from "../status-data";
-import { Table } from "../utils/table";
-import { toDecimalPlaces } from "../utils/math";
+} from '../status-data';
+import { toDecimalPlaces } from '../utils/math';
+import { Table } from '../utils/table';
 
 export type GenerateSummaryRequest = {
   groupedCoverage: Awaited<
-    ReturnType<(typeof groupCoverageByStatus)["execute"]>
+  ReturnType<(typeof groupCoverageByStatus)['execute']>
   >;
   actionConfig: ActionConfig;
   fileCount: number;
@@ -34,11 +34,11 @@ function buildSummaryTable({
   fileCount,
 }: GenerateSummaryRequest) {
   const table = new Table([
-    "St.",
-    "Level",
-    "Range",
-    "Percentage",
-    "Count / Total",
+    'St.',
+    'Level',
+    'Range',
+    'Percentage',
+    'Count / Total',
   ]);
 
   Object.values(Status)
@@ -68,7 +68,7 @@ function buildSummaryTable({
         emojiForStatus(type),
         labelForStatus(type),
         minSize
-          ? "> " +
+          ? '> ' +
             bytes(
               actionConfig.thresholds[
                 labelForStatus(
@@ -76,7 +76,7 @@ function buildSummaryTable({
                 ).toLowerCase() as keyof typeof actionConfig.thresholds
               ],
             )
-          : "",
+          : '',
         `${toDecimalPlaces((count / fileCount) * 100, 2)}%`,
         `${count} / ${fileCount}`,
       ]);
@@ -99,15 +99,15 @@ function buildKeyIssues({
 
   const toDisplayBreakdown = Object.values(newCoverage);
 
-  return `${toDisplayBreakdown.flat().length > 0 ? "<h3>Key issues</h3>" : ""}
+  return `${toDisplayBreakdown.flat().length > 0 ? '<h3>Key issues</h3>' : ''}
   
   ${toDisplayBreakdown
     .reverse()
     .map((comments) =>
       comments.length > 0
         ? `<h3>${emojiForStatus(comments[0].status)} ${labelForStatus(comments[0].status)} ${emojiForStatus(comments[0].status)}</h3>
-${comments.map((c) => c.comment).join("\n\n")}`
-        : "",
+${comments.map((c) => c.comment).join('\n\n')}`
+        : '',
     )
-    .join("\n\n")}`;
+    .join('\n\n')}`;
 }

@@ -1,6 +1,8 @@
-import * as core from "@actions/core";
-import { context } from "@actions/github";
-import { extractConfig } from "./config";
+import * as core from '@actions/core';
+import { context } from '@actions/github';
+import { extractConfig } from './config';
+import { GithubApiWrapper } from './github/api-wrapper';
+import { statusFromString } from './status-data';
 import {
   buildComment,
   checkoutBranch,
@@ -12,32 +14,30 @@ import {
   getComparisonBranch,
   summarizeMetafiles,
   assignStatusCheck,
-} from "./steps";
-import { GithubApiWrapper } from "./github/api-wrapper";
-import { statusFromString } from "./status-data";
+} from './steps';
 
 const getRequiredInput = (input: string): string =>
   core.getInput(input, { required: true, trimWhitespace: true });
 
 export const analyze = async () => {
-  const metaDirectory = getRequiredInput("metafile-directory");
-  const metaGlob = core.getInput("metafile-glob");
+  const metaDirectory = getRequiredInput('metafile-directory');
+  const metaGlob = core.getInput('metafile-glob');
   const generateMetafilesCommand = getRequiredInput(
-    "generate-metafiles-command",
+    'generate-metafiles-command',
   );
-  const githubToken = getRequiredInput("github-token");
+  const githubToken = getRequiredInput('github-token');
   const config = extractConfig();
 
-  core.info("Starting execution");
+  core.info('Starting execution');
 
   await generateMetafiles.execute({ command: generateMetafilesCommand });
-  core.info("Generated metafiles for latest");
+  core.info('Generated metafiles for latest');
 
   const latestCoverage = await summarizeMetafiles.execute({
     directory: metaDirectory,
     glob: metaGlob,
   });
-  core.info("parsed latest coverage");
+  core.info('parsed latest coverage');
 
   const comparisonBranch = await getComparisonBranch.execute({
     context,
@@ -45,19 +45,19 @@ export const analyze = async () => {
 
   core.info(`Derived comparison branch as ${comparisonBranch}`);
 
-  let fileDeltas = "";
+  let fileDeltas = '';
 
   if (comparisonBranch) {
     await checkoutBranch.execute(comparisonBranch);
-    core.info(`Checked out comparison branch`);
+    core.info('Checked out comparison branch');
     await generateMetafiles.execute({ command: generateMetafilesCommand });
-    core.info(`Generating metafiles for comparison`);
+    core.info('Generating metafiles for comparison');
 
     const previousCoverage = await summarizeMetafiles.execute({
       directory: metaDirectory,
       glob: metaGlob,
     });
-    core.info(`Parsed previous coverage`);
+    core.info('Parsed previous coverage');
 
     fileDeltas = await compareFileSize.execute({
       previousCoverage,
@@ -65,7 +65,7 @@ export const analyze = async () => {
       config,
     });
 
-    core.info(`Generated file size delta analysis`);
+    core.info('Generated file size delta analysis');
     await checkoutBranch.execute(context.payload.pull_request!.head.ref);
   }
 
@@ -79,14 +79,14 @@ export const analyze = async () => {
     coverageFiles: latestCoverage,
     thresholds: config,
   });
-  core.info(`Grouped current details by status`);
+  core.info('Grouped current details by status');
 
   const metafileSummary = await generateSummary.execute({
     groupedCoverage,
     actionConfig: config,
     fileCount: latestCoverage.length,
   });
-  core.info(`Generated a summary of the latest values`);
+  core.info('Generated a summary of the latest values');
 
   const commentToMake = await buildComment.execute({
     fileDeltas,
@@ -99,10 +99,10 @@ export const analyze = async () => {
     actionConfig: config,
     context,
     latestCoverage,
-    markFailures: core.getBooleanInput("check-mark-failure"),
-    minFileCount: parseInt(getRequiredInput("check-mark-file-count"), 10),
+    markFailures: core.getBooleanInput('check-mark-failure'),
+    minFileCount: parseInt(getRequiredInput('check-mark-file-count'), 10),
     minThreshold: statusFromString(
-      getRequiredInput("check-mark-min-threshold"),
+      getRequiredInput('check-mark-min-threshold'),
     ),
   });
 };

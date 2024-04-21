@@ -23191,8 +23191,8 @@ var core3 = __toESM(require_core());
 var import_github2 = __toESM(require_github());
 
 // src/config.ts
-var import_bytes = __toESM(require_bytes());
 var core = __toESM(require_core());
+var import_bytes = __toESM(require_bytes());
 
 // src/status-data.ts
 var Status = /* @__PURE__ */ ((Status4) => {
@@ -23280,6 +23280,92 @@ var extractConfig = () => ({
   commentMinThreshold: statusFromString(core.getInput("comment-min-threshold"))
 });
 
+// src/github/api-wrapper.ts
+var import_core = __toESM(require_core());
+var import_github = __toESM(require_github());
+var GithubApiWrapper = class _GithubApiWrapper {
+  constructor(ghToken, owner, repo) {
+    this.ghToken = ghToken;
+    this.owner = owner;
+    this.repo = repo;
+  }
+  static {
+    this.IdentifierComment = "<!-- metafile-analysis-action comment -->";
+  }
+  getOctokit() {
+    return (0, import_github.getOctokit)(this.ghToken);
+  }
+  async getPrData(prNumber) {
+    const prData = await this.getOctokit().rest.pulls.get({
+      owner: this.owner,
+      pull_number: prNumber,
+      repo: this.repo
+    });
+    return prData.data;
+  }
+  async upsertComment(prNumber, commentToMake) {
+    const octokit = this.getOctokit();
+    (0, import_core.info)(
+      `Upserting comment for owner=${this.owner}, repo=${this.repo}, prNumber=${prNumber}`
+    );
+    const baseRequest = {
+      owner: this.owner,
+      repo: this.repo
+    };
+    const { data: reviewComments } = await octokit.rest.issues.listComments({
+      ...baseRequest,
+      issue_number: prNumber
+    });
+    const comment = reviewComments.find((c) => {
+      return c.body?.includes(_GithubApiWrapper.IdentifierComment);
+    });
+    const commentBody = `${_GithubApiWrapper.IdentifierComment}${commentToMake}`;
+    if (comment) {
+      (0, import_core.info)("Found existing comment - updating content");
+      await octokit.rest.issues.updateComment({
+        ...baseRequest,
+        body: commentBody,
+        comment_id: comment.id
+      });
+    } else {
+      (0, import_core.info)("First run - creating comment");
+      await octokit.rest.issues.createComment({
+        ...baseRequest,
+        body: commentBody,
+        issue_number: prNumber
+      });
+    }
+  }
+  async assignStatus(ref, conclusion, summary) {
+    const checkName = "Metafile Analysis";
+    const octokit = this.getOctokit();
+    const checks = await octokit.rest.checks.listForRef({
+      owner: this.owner,
+      repo: this.repo,
+      ref,
+      check_name: checkName
+    });
+    const request = {
+      name: checkName,
+      owner: this.owner,
+      repo: this.repo,
+      conclusion,
+      output: {
+        title: checkName,
+        summary
+      }
+    };
+    if (checks.data.check_runs.length !== 1) {
+      await octokit.rest.checks.create({ ...request, head_sha: ref });
+    } else {
+      await octokit.rest.checks.update({
+        check_run_id: checks.data.check_runs[0].id,
+        ...request
+      });
+    }
+  }
+};
+
 // src/steps/assign-status-check.ts
 var assign_status_check_exports = {};
 __export(assign_status_check_exports, {
@@ -23354,6 +23440,12 @@ __export(compare_file_size_exports, {
 });
 var import_bytes2 = __toESM(require_bytes());
 
+// src/utils/math.ts
+var toDecimalPlaces = (v, decimals) => {
+  const power = Math.pow(10, decimals);
+  return Math.round(v * power) / power;
+};
+
 // src/utils/table.ts
 var Table = class {
   constructor(columns) {
@@ -23377,12 +23469,6 @@ var Table = class {
       ...this.rows.map((row) => `| ${row.join(" | ")} |`)
     ].join("\n");
   }
-};
-
-// src/utils/math.ts
-var toDecimalPlaces = (v, decimals) => {
-  const power = Math.pow(10, decimals);
-  return Math.round(v * power) / power;
 };
 
 // src/steps/compare-file-size.ts
@@ -23494,8 +23580,8 @@ __export(group_coverage_by_status_exports, {
 
 // src/format-comment.ts
 var import_fs = require("fs");
-var import_bytes3 = __toESM(require_bytes());
 var import_path = __toESM(require("path"));
+var import_bytes3 = __toESM(require_bytes());
 var toKb = (size) => (0, import_bytes3.default)(size);
 function buildMetadataForFile(fileName, metafile, actionConfig) {
   const metadata = metafile[0];
@@ -29900,92 +29986,6 @@ async function execute10({ directory, glob: glob2 }) {
   return files.map((file) => breakdownMetafile(file, directory)).flat();
 }
 
-// src/github/api-wrapper.ts
-var import_core = __toESM(require_core());
-var import_github = __toESM(require_github());
-var GithubApiWrapper = class _GithubApiWrapper {
-  constructor(ghToken, owner, repo) {
-    this.ghToken = ghToken;
-    this.owner = owner;
-    this.repo = repo;
-  }
-  static {
-    this.IdentifierComment = "<!-- metafile-analysis-action comment -->";
-  }
-  getOctokit() {
-    return (0, import_github.getOctokit)(this.ghToken);
-  }
-  async getPrData(prNumber) {
-    const prData = await this.getOctokit().rest.pulls.get({
-      owner: this.owner,
-      pull_number: prNumber,
-      repo: this.repo
-    });
-    return prData.data;
-  }
-  async upsertComment(prNumber, commentToMake) {
-    const octokit = this.getOctokit();
-    (0, import_core.info)(
-      `Upserting comment for owner=${this.owner}, repo=${this.repo}, prNumber=${prNumber}`
-    );
-    const baseRequest = {
-      owner: this.owner,
-      repo: this.repo
-    };
-    const { data: reviewComments } = await octokit.rest.issues.listComments({
-      ...baseRequest,
-      issue_number: prNumber
-    });
-    const comment = reviewComments.find((comment2) => {
-      return comment2.body?.includes(_GithubApiWrapper.IdentifierComment);
-    });
-    const commentBody = `${_GithubApiWrapper.IdentifierComment}${commentToMake}`;
-    if (comment) {
-      (0, import_core.info)("Found existing comment - updating content");
-      await octokit.rest.issues.updateComment({
-        ...baseRequest,
-        body: commentBody,
-        comment_id: comment.id
-      });
-    } else {
-      (0, import_core.info)("First run - creating comment");
-      await octokit.rest.issues.createComment({
-        ...baseRequest,
-        body: commentBody,
-        issue_number: prNumber
-      });
-    }
-  }
-  async assignStatus(ref, conclusion, summary) {
-    const checkName = "Metafile Analysis";
-    const octokit = this.getOctokit();
-    const checks = await octokit.rest.checks.listForRef({
-      owner: this.owner,
-      repo: this.repo,
-      ref,
-      check_name: checkName
-    });
-    const request = {
-      name: checkName,
-      owner: this.owner,
-      repo: this.repo,
-      conclusion,
-      output: {
-        title: checkName,
-        summary
-      }
-    };
-    if (checks.data.check_runs.length !== 1) {
-      await octokit.rest.checks.create({ ...request, head_sha: ref });
-    } else {
-      await octokit.rest.checks.update({
-        check_run_id: checks.data.check_runs[0].id,
-        ...request
-      });
-    }
-  }
-};
-
 // src/metafile-analysis.ts
 var getRequiredInput = (input) => core3.getInput(input, { required: true, trimWhitespace: true });
 var analyze = async () => {
@@ -30011,20 +30011,20 @@ var analyze = async () => {
   let fileDeltas = "";
   if (comparisonBranch) {
     await checkout_branch_exports.execute(comparisonBranch);
-    core3.info(`Checked out comparison branch`);
+    core3.info("Checked out comparison branch");
     await generate_metafiles_exports.execute({ command: generateMetafilesCommand });
-    core3.info(`Generating metafiles for comparison`);
+    core3.info("Generating metafiles for comparison");
     const previousCoverage = await summarize_metafiles_exports.execute({
       directory: metaDirectory,
       glob: metaGlob
     });
-    core3.info(`Parsed previous coverage`);
+    core3.info("Parsed previous coverage");
     fileDeltas = await compare_file_size_exports.execute({
       previousCoverage,
       latestCoverage,
       config
     });
-    core3.info(`Generated file size delta analysis`);
+    core3.info("Generated file size delta analysis");
     await checkout_branch_exports.execute(import_github2.context.payload.pull_request.head.ref);
   }
   const githubApi = new GithubApiWrapper(
@@ -30036,13 +30036,13 @@ var analyze = async () => {
     coverageFiles: latestCoverage,
     thresholds: config
   });
-  core3.info(`Grouped current details by status`);
+  core3.info("Grouped current details by status");
   const metafileSummary = await generate_summary_exports.execute({
     groupedCoverage,
     actionConfig: config,
     fileCount: latestCoverage.length
   });
-  core3.info(`Generated a summary of the latest values`);
+  core3.info("Generated a summary of the latest values");
   const commentToMake = await build_comment_exports.execute({
     fileDeltas,
     metafileSummary
@@ -30061,7 +30061,7 @@ var analyze = async () => {
 };
 
 // src/index.ts
-analyze();
+void analyze();
 /*! Bundled license information:
 
 undici/lib/fetch/body.js:

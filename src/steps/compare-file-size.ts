@@ -1,9 +1,9 @@
-import bytes from "bytes";
-import { ActionConfig } from "../config";
-import { emojiForStatus, labelForStatus, statusForSize } from "../status-data";
-import { Table } from "../utils/table";
-import { toDecimalPlaces } from "../utils/math";
-import { BreakdownMetafileResponse } from "../format-comment";
+import bytes from 'bytes';
+import { ActionConfig } from '../config';
+import { BreakdownMetafileResponse } from '../format-comment';
+import { emojiForStatus, labelForStatus, statusForSize } from '../status-data';
+import { toDecimalPlaces } from '../utils/math';
+import { Table } from '../utils/table';
 
 export type CompareCoverageRequest = {
   readonly previousCoverage: BreakdownMetafileResponse[];
@@ -65,10 +65,10 @@ const generateSummary = ({
   differentFiles,
   config,
 }: ReturnType<typeof compareFileSize> & { config: ActionConfig }): string => {
-  let comment = "";
+  let comment = '';
 
   if (differentFiles.length) {
-    const table = new Table(["St.", "File", "Status", "Size (delta)"]);
+    const table = new Table(['St.', 'File', 'Status', 'Size (delta)']);
     differentFiles.forEach((file) => {
       const currentSize = file.curr.totalSize;
       const status = statusForSize(currentSize, config.thresholds);
@@ -93,7 +93,7 @@ const generateSummary = ({
   }
 
   if (addedFiles.length) {
-    const table = new Table(["St.", "File", "Status", "Size"]);
+    const table = new Table(['St.', 'File', 'Status', 'Size']);
 
     addedFiles.forEach((file) => {
       const currentSize = file!.totalSize;
@@ -111,7 +111,7 @@ const generateSummary = ({
   }
 
   if (removedFiles.length) {
-    const table = new Table(["St.", "File", "Status", "Size"]);
+    const table = new Table(['St.', 'File', 'Status', 'Size']);
 
     removedFiles.forEach((file) => {
       const currentSize = file!.totalSize;

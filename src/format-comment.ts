@@ -1,8 +1,8 @@
-import { readFileSync } from "fs";
-import bytes from "bytes";
-import { ActionConfig } from "./config";
-import { emojiForStatus, statusForSize } from "./status-data";
-import path from "path";
+import { readFileSync } from 'fs';
+import path from 'path';
+import bytes from 'bytes';
+import { ActionConfig } from './config';
+import { emojiForStatus, statusForSize } from './status-data';
 
 const toKb = (size: number) => bytes(size);
 
@@ -30,7 +30,7 @@ export function buildMetadataForFile(
   | **Total Size** | ${toKb(metadata.totalSize)} |
   | **Source Files** | ${toKb(metadata.srcFile.size)} |
   | **node_modules** | ${toKb(metadata.totalSize - metadata.srcFile.size)} |
-  ${largerNodeMods.length ? largerNodeMods.map((mod) => `| <li>${mod.name}</li> | ${toKb(mod.size)} |`).join("\n") : ""}
+  ${largerNodeMods.length ? largerNodeMods.map((mod) => `| <li>${mod.name}</li> | ${toKb(mod.size)} |`).join('\n') : ''}
   </details>
     `,
   };
@@ -43,24 +43,24 @@ export function breakdownMetafile(
   let srcSize = 0;
   const topLevelNodeModules: Record<string, number> = {};
   const metafile = JSON.parse(
-    readFileSync(path.join(directory, filePath), "utf-8"),
+    readFileSync(path.join(directory, filePath), 'utf-8'),
   );
 
   return Object.entries(
     metafile.outputs as Record<
-      string,
-      { inputs: Record<string, { bytesInOutput: number }>; bytes: number }
+    string,
+    { inputs: Record<string, { bytesInOutput: number }>; bytes: number }
     >,
   )
     .map(([outputFile, { inputs, bytes: totalSize }]) => {
       // skip map files
-      if (outputFile.endsWith(".map")) return;
+      if (outputFile.endsWith('.map')) return;
 
       Object.entries(inputs).forEach(([key, value]) => {
-        if (key.startsWith("node_modules")) {
-          const [, host, module] = key.split("/");
+        if (key.startsWith('node_modules')) {
+          const [, host, module] = key.split('/');
           let objKey = host;
-          if (host.startsWith("@")) {
+          if (host.startsWith('@')) {
             objKey = `${host}/${module}`;
           }
           if (!topLevelNodeModules[objKey]) {
@@ -85,7 +85,7 @@ export function breakdownMetafile(
         srcFile: {
           size: srcSize,
         },
-        filePath: filePath.replace(".meta.json", ""),
+        filePath: filePath.replace('.meta.json', ''),
       };
     })
     .filter((i) => !!i) as BreakdownMetafileResponse[];

@@ -1,9 +1,9 @@
-import { info } from "@actions/core";
-import { getOctokit } from "@actions/github";
+import { info } from '@actions/core';
+import { getOctokit } from '@actions/github';
 
 export class GithubApiWrapper {
   private static IdentifierComment =
-    "<!-- metafile-analysis-action comment -->";
+    '<!-- metafile-analysis-action comment -->';
 
   constructor(
     private ghToken: string,
@@ -40,14 +40,14 @@ export class GithubApiWrapper {
       issue_number: prNumber,
     });
 
-    const comment = reviewComments.find((comment) => {
-      return comment.body?.includes(GithubApiWrapper.IdentifierComment);
+    const comment = reviewComments.find((c) => {
+      return c.body?.includes(GithubApiWrapper.IdentifierComment);
     });
 
     const commentBody = `${GithubApiWrapper.IdentifierComment}${commentToMake}`;
 
     if (comment) {
-      info("Found existing comment - updating content");
+      info('Found existing comment - updating content');
 
       await octokit.rest.issues.updateComment({
         ...baseRequest,
@@ -55,7 +55,7 @@ export class GithubApiWrapper {
         comment_id: comment.id,
       });
     } else {
-      info("First run - creating comment");
+      info('First run - creating comment');
 
       await octokit.rest.issues.createComment({
         ...baseRequest,
@@ -67,10 +67,10 @@ export class GithubApiWrapper {
 
   public async assignStatus(
     ref: string,
-    conclusion: "failure" | "success",
+    conclusion: 'failure' | 'success',
     summary: string,
   ) {
-    const checkName = "Metafile Analysis";
+    const checkName = 'Metafile Analysis';
     const octokit = this.getOctokit();
     const checks = await octokit.rest.checks.listForRef({
       owner: this.owner,
