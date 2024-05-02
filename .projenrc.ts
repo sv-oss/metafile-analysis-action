@@ -106,6 +106,18 @@ const project = new GitHubActionTypeScriptProject({
         description: 'The threshold for considering a file as a failure for whether or not to add a check',
         default: 'HIGH',
       },
+      'display-summary': {
+        description: 'Whether to render the summary of files',
+        default: 'true',
+      },
+      'display-key-issues': {
+        description: 'Whether to render the key issues that were found',
+        default: 'true',
+      },
+      'display-deltas': {
+        description: 'Whether to render the file deltas that were detected',
+        default: 'true',
+      },
     },
   },
 });

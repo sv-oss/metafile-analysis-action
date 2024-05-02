@@ -6,6 +6,9 @@ export type BuildCommentRequest = {
   readonly metafileSummary: Awaited<
   ReturnType<(typeof generateSummary)['execute']>
   >;
+  readonly displaySummary: boolean;
+  readonly displayDeltas: boolean;
+  readonly displayKeyIssues: boolean;
 };
 
 export const execute = async (req: BuildCommentRequest) => {
@@ -14,13 +17,14 @@ export const execute = async (req: BuildCommentRequest) => {
 
   return `${header ?? '<h2>Metadata File Analysis</h2>'}
 
+  ${req.displaySummary ? `
   <h3>Summary</h3>
 
 ${req.metafileSummary.summary}
+` : ''}
+${req.displayDeltas ? req.fileDeltas : ''}
 
-${req.fileDeltas}
-
-${req.metafileSummary.keyIssues}
+${req.displayKeyIssues ? req.metafileSummary.keyIssues : ''}
 
 ${footer}
 

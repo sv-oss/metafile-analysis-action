@@ -23399,13 +23399,14 @@ var execute2 = async (req) => {
   const footer = core2.getInput("comment-footer");
   return `${header ?? "<h2>Metadata File Analysis</h2>"}
 
+  ${req.displaySummary ? `
   <h3>Summary</h3>
 
 ${req.metafileSummary.summary}
+` : ""}
+${req.displayDeltas ? req.fileDeltas : ""}
 
-${req.fileDeltas}
-
-${req.metafileSummary.keyIssues}
+${req.displayKeyIssues ? req.metafileSummary.keyIssues : ""}
 
 ${footer}
 
@@ -30065,7 +30066,10 @@ var analyze = async () => {
   core3.info("Generated a summary of the latest values");
   const commentToMake = await build_comment_exports.execute({
     fileDeltas,
-    metafileSummary
+    metafileSummary,
+    displaySummary: core3.getInput("display-summary") === "true",
+    displayKeyIssues: core3.getInput("display-key-issues") === "true",
+    displayDeltas: core3.getInput("display-deltas") === "true"
   });
   await comment_on_pull_request_exports.execute({ commentToMake, githubApi, context: import_github2.context });
   await assign_status_check_exports.execute({
