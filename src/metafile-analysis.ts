@@ -91,6 +91,9 @@ export const analyze = async () => {
   const commentToMake = await buildComment.execute({
     fileDeltas,
     metafileSummary,
+    displaySummary: core.getInput('display-summary') === 'true',
+    displayKeyIssues: core.getInput('display-key-issues') === 'true',
+    displayDeltas: core.getInput('display-deltas') === 'true',
   });
 
   await commentOnPullRequest.execute({ commentToMake, githubApi, context });
