@@ -30031,22 +30031,27 @@ var analyze = async () => {
   core3.info(`Derived comparison branch as ${comparisonBranch}`);
   let fileDeltas = "";
   if (comparisonBranch) {
-    await checkout_branch_exports.execute(comparisonBranch);
-    core3.info("Checked out comparison branch");
-    await generate_metafiles_exports.execute({ command: generateMetafilesCommand });
-    core3.info("Generating metafiles for comparison");
-    const previousCoverage = await summarize_metafiles_exports.execute({
-      directory: metaDirectory,
-      glob: metaGlob
-    });
-    core3.info("Parsed previous coverage");
-    fileDeltas = await compare_file_size_exports.execute({
-      previousCoverage,
-      latestCoverage,
-      config
-    });
-    core3.info("Generated file size delta analysis");
-    await checkout_branch_exports.execute(import_github2.context.payload.pull_request.head.ref);
+    try {
+      await checkout_branch_exports.execute(comparisonBranch);
+      core3.info("Checked out comparison branch");
+      await generate_metafiles_exports.execute({ command: generateMetafilesCommand });
+      core3.info("Generating metafiles for comparison");
+      const previousCoverage = await summarize_metafiles_exports.execute({
+        directory: metaDirectory,
+        glob: metaGlob
+      });
+      core3.info("Parsed previous coverage");
+      fileDeltas = await compare_file_size_exports.execute({
+        previousCoverage,
+        latestCoverage,
+        config
+      });
+      core3.info("Generated file size delta analysis");
+    } catch (e) {
+      core3.info("Error caught while completing execution on comparison branch - delta will not be parsed");
+    } finally {
+      await checkout_branch_exports.execute(import_github2.context.payload.pull_request.head.ref);
+    }
   }
   const githubApi = new GithubApiWrapper(
     githubToken,
