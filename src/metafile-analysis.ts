@@ -48,25 +48,30 @@ export const analyze = async () => {
   let fileDeltas = '';
 
   if (comparisonBranch) {
-    await checkoutBranch.execute(comparisonBranch);
-    core.info('Checked out comparison branch');
-    await generateMetafiles.execute({ command: generateMetafilesCommand });
-    core.info('Generating metafiles for comparison');
+    try {
+      await checkoutBranch.execute(comparisonBranch);
+      core.info('Checked out comparison branch');
+      await generateMetafiles.execute({ command: generateMetafilesCommand });
+      core.info('Generating metafiles for comparison');
 
-    const previousCoverage = await summarizeMetafiles.execute({
-      directory: metaDirectory,
-      glob: metaGlob,
-    });
-    core.info('Parsed previous coverage');
+      const previousCoverage = await summarizeMetafiles.execute({
+        directory: metaDirectory,
+        glob: metaGlob,
+      });
+      core.info('Parsed previous coverage');
 
-    fileDeltas = await compareFileSize.execute({
-      previousCoverage,
-      latestCoverage,
-      config,
-    });
+      fileDeltas = await compareFileSize.execute({
+        previousCoverage,
+        latestCoverage,
+        config,
+      });
 
-    core.info('Generated file size delta analysis');
-    await checkoutBranch.execute(context.payload.pull_request!.head.ref);
+      core.info('Generated file size delta analysis');
+    } catch (e) {
+      core.info('Error caught while completing execution on comparison branch - delta will not be parsed');
+    } finally {
+      await checkoutBranch.execute(context.payload.pull_request!.head.ref);
+    }
   }
 
   const githubApi = new GithubApiWrapper(
