@@ -23686,10 +23686,10 @@ __export(summarize_metafiles_exports, {
   execute: () => execute10
 });
 
-// node_modules/minimatch/dist/mjs/index.js
+// node_modules/glob/node_modules/minimatch/dist/esm/index.js
 var import_brace_expansion = __toESM(require_brace_expansion(), 1);
 
-// node_modules/minimatch/dist/mjs/assert-valid-pattern.js
+// node_modules/glob/node_modules/minimatch/dist/esm/assert-valid-pattern.js
 var MAX_PATTERN_LENGTH = 1024 * 64;
 var assertValidPattern = (pattern) => {
   if (typeof pattern !== "string") {
@@ -23700,7 +23700,7 @@ var assertValidPattern = (pattern) => {
   }
 };
 
-// node_modules/minimatch/dist/mjs/brace-expressions.js
+// node_modules/glob/node_modules/minimatch/dist/esm/brace-expressions.js
 var posixClasses = {
   "[:alnum:]": ["\\p{L}\\p{Nl}\\p{Nd}", true],
   "[:alpha:]": ["\\p{L}\\p{Nl}", true],
@@ -23809,12 +23809,12 @@ var parseClass = (glob2, position) => {
   return [comb, uflag, endPos - pos, true];
 };
 
-// node_modules/minimatch/dist/mjs/unescape.js
+// node_modules/glob/node_modules/minimatch/dist/esm/unescape.js
 var unescape2 = (s, { windowsPathsNoEscape = false } = {}) => {
   return windowsPathsNoEscape ? s.replace(/\[([^\/\\])\]/g, "$1") : s.replace(/((?!\\).|^)\[([^\/\\])\]/g, "$1$2").replace(/\\([^\/])/g, "$1");
 };
 
-// node_modules/minimatch/dist/mjs/ast.js
+// node_modules/glob/node_modules/minimatch/dist/esm/ast.js
 var types = /* @__PURE__ */ new Set(["!", "?", "+", "*", "@"]);
 var isExtglobType = (c) => types.has(c);
 var startNoTraversal = "(?!(?:^|/)\\.\\.?(?:$|/))";
@@ -24088,6 +24088,9 @@ var AST = class _AST {
       _glob: glob2
     });
   }
+  get options() {
+    return this.#options;
+  }
   // returns the string match, the regexp source, whether there's magic
   // in the regexp (so a regular expression is required) and whether or
   // not the uflag is needed for the regular expression (for posix classes)
@@ -24290,12 +24293,12 @@ var AST = class _AST {
   }
 };
 
-// node_modules/minimatch/dist/mjs/escape.js
+// node_modules/glob/node_modules/minimatch/dist/esm/escape.js
 var escape = (s, { windowsPathsNoEscape = false } = {}) => {
   return windowsPathsNoEscape ? s.replace(/[?*()[\]]/g, "[$&]") : s.replace(/[?*()[\]\\]/g, "\\$&");
 };
 
-// node_modules/minimatch/dist/mjs/index.js
+// node_modules/glob/node_modules/minimatch/dist/esm/index.js
 var minimatch = (p, pattern, options = {}) => {
   assertValidPattern(pattern);
   if (!options.nocomment && pattern.charAt(0) === "#") {
@@ -24894,7 +24897,10 @@ var Minimatch = class {
       fastTest = dotStarTest;
     }
     const re = AST.fromGlob(pattern, this.options).toMMPattern();
-    return fastTest ? Object.assign(re, { test: fastTest }) : re;
+    if (fastTest && typeof re === "object") {
+      Reflect.defineProperty(re, "test", { value: fastTest });
+    }
+    return re;
   }
   makeRe() {
     if (this.regexp || this.regexp === false)
@@ -25008,6 +25014,9 @@ minimatch.AST = AST;
 minimatch.Minimatch = Minimatch;
 minimatch.escape = escape;
 minimatch.unescape = unescape2;
+
+// node_modules/glob/dist/esm/glob.js
+var import_node_url2 = require("node:url");
 
 // node_modules/lru-cache/dist/esm/index.js
 var perf = typeof performance === "object" && performance && typeof performance.now === "function" ? performance : Date;
@@ -26293,17 +26302,17 @@ var actualFS = __toESM(require("node:fs"), 1);
 var import_promises = require("node:fs/promises");
 
 // node_modules/minipass/dist/esm/index.js
-var import_events = require("events");
-var import_stream = __toESM(require("stream"), 1);
-var import_string_decoder = require("string_decoder");
+var import_node_events = require("node:events");
+var import_node_stream = __toESM(require("node:stream"), 1);
+var import_node_string_decoder = require("node:string_decoder");
 var proc = typeof process === "object" && process ? process : {
   stdout: null,
   stderr: null
 };
-var isStream = (s) => !!s && typeof s === "object" && (s instanceof Minipass || s instanceof import_stream.default || isReadable(s) || isWritable(s));
-var isReadable = (s) => !!s && typeof s === "object" && s instanceof import_events.EventEmitter && typeof s.pipe === "function" && // node core Writable streams have a pipe() method, but it throws
-s.pipe !== import_stream.default.Writable.prototype.pipe;
-var isWritable = (s) => !!s && typeof s === "object" && s instanceof import_events.EventEmitter && typeof s.write === "function" && typeof s.end === "function";
+var isStream = (s) => !!s && typeof s === "object" && (s instanceof Minipass || s instanceof import_node_stream.default || isReadable(s) || isWritable(s));
+var isReadable = (s) => !!s && typeof s === "object" && s instanceof import_node_events.EventEmitter && typeof s.pipe === "function" && // node core Writable streams have a pipe() method, but it throws
+s.pipe !== import_node_stream.default.Writable.prototype.pipe;
+var isWritable = (s) => !!s && typeof s === "object" && s instanceof import_node_events.EventEmitter && typeof s.write === "function" && typeof s.end === "function";
 var EOF = Symbol("EOF");
 var MAYBE_EMIT_END = Symbol("maybeEmitEnd");
 var EMITTED_END = Symbol("emittedEnd");
@@ -26379,7 +26388,7 @@ var PipeProxyErrors = class extends Pipe {
 };
 var isObjectModeOptions = (o) => !!o.objectMode;
 var isEncodingOptions = (o) => !o.objectMode && !!o.encoding && o.encoding !== "buffer";
-var Minipass = class extends import_events.EventEmitter {
+var Minipass = class extends import_node_events.EventEmitter {
   [FLOWING] = false;
   [PAUSED] = false;
   [PIPES] = [];
@@ -26430,7 +26439,7 @@ var Minipass = class extends import_events.EventEmitter {
       this[ENCODING] = null;
     }
     this[ASYNC] = !!options.async;
-    this[DECODER] = this[ENCODING] ? new import_string_decoder.StringDecoder(this[ENCODING]) : null;
+    this[DECODER] = this[ENCODING] ? new import_node_string_decoder.StringDecoder(this[ENCODING]) : null;
     if (options && options.debugExposeBuffer === true) {
       Object.defineProperty(this, "buffer", { get: () => this[BUFFER] });
     }
@@ -28894,9 +28903,6 @@ var PathScurryDarwin = class extends PathScurryPosix {
 var Path = process.platform === "win32" ? PathWin32 : PathPosix;
 var PathScurry = process.platform === "win32" ? PathScurryWin32 : process.platform === "darwin" ? PathScurryDarwin : PathScurryPosix;
 
-// node_modules/glob/dist/esm/glob.js
-var import_node_url2 = require("node:url");
-
 // node_modules/glob/dist/esm/pattern.js
 var isPatternList = (pl) => pl.length >= 1;
 var isGlobList = (gl) => gl.length >= 1;
@@ -29069,12 +29075,15 @@ var Ignore = class {
   relativeChildren;
   absolute;
   absoluteChildren;
+  platform;
+  mmopts;
   constructor(ignored, { nobrace, nocase, noext, noglobstar, platform = defaultPlatform2 }) {
     this.relative = [];
     this.absolute = [];
     this.relativeChildren = [];
     this.absoluteChildren = [];
-    const mmopts = {
+    this.platform = platform;
+    this.mmopts = {
       dot: true,
       nobrace,
       nocase,
@@ -29085,32 +29094,34 @@ var Ignore = class {
       nocomment: true,
       nonegate: true
     };
-    for (const ign of ignored) {
-      const mm = new Minimatch(ign, mmopts);
-      for (let i = 0; i < mm.set.length; i++) {
-        const parsed = mm.set[i];
-        const globParts = mm.globParts[i];
-        if (!parsed || !globParts) {
-          throw new Error("invalid pattern object");
-        }
-        while (parsed[0] === "." && globParts[0] === ".") {
-          parsed.shift();
-          globParts.shift();
-        }
-        const p = new Pattern(parsed, globParts, 0, platform);
-        const m = new Minimatch(p.globString(), mmopts);
-        const children = globParts[globParts.length - 1] === "**";
-        const absolute = p.isAbsolute();
+    for (const ign of ignored)
+      this.add(ign);
+  }
+  add(ign) {
+    const mm = new Minimatch(ign, this.mmopts);
+    for (let i = 0; i < mm.set.length; i++) {
+      const parsed = mm.set[i];
+      const globParts = mm.globParts[i];
+      if (!parsed || !globParts) {
+        throw new Error("invalid pattern object");
+      }
+      while (parsed[0] === "." && globParts[0] === ".") {
+        parsed.shift();
+        globParts.shift();
+      }
+      const p = new Pattern(parsed, globParts, 0, this.platform);
+      const m = new Minimatch(p.globString(), this.mmopts);
+      const children = globParts[globParts.length - 1] === "**";
+      const absolute = p.isAbsolute();
+      if (absolute)
+        this.absolute.push(m);
+      else
+        this.relative.push(m);
+      if (children) {
         if (absolute)
-          this.absolute.push(m);
+          this.absoluteChildren.push(m);
         else
-          this.relative.push(m);
-        if (children) {
-          if (absolute)
-            this.absoluteChildren.push(m);
-          else
-            this.relativeChildren.push(m);
-        }
+          this.relativeChildren.push(m);
       }
     }
   }
@@ -29379,13 +29390,19 @@ var GlobUtil = class {
   #sep;
   signal;
   maxDepth;
+  includeChildMatches;
   constructor(patterns, path3, opts) {
     this.patterns = patterns;
     this.path = path3;
     this.opts = opts;
     this.#sep = !opts.posix && opts.platform === "win32" ? "\\" : "/";
-    if (opts.ignore) {
-      this.#ignore = makeIgnore(opts.ignore, opts);
+    this.includeChildMatches = opts.includeChildMatches !== false;
+    if (opts.ignore || !this.includeChildMatches) {
+      this.#ignore = makeIgnore(opts.ignore ?? [], opts);
+      if (!this.includeChildMatches && typeof this.#ignore.add !== "function") {
+        const m = "cannot ignore child matches, ignore lacks add() method.";
+        throw new Error(m);
+      }
     }
     this.maxDepth = opts.maxDepth || Infinity;
     if (opts.signal) {
@@ -29471,6 +29488,10 @@ var GlobUtil = class {
   matchFinish(e, absolute) {
     if (this.#ignored(e))
       return;
+    if (!this.includeChildMatches && this.#ignore?.add) {
+      const ign = `${e.relativePosix()}/**`;
+      this.#ignore.add(ign);
+    }
     const abs = this.opts.absolute === void 0 ? absolute : this.opts.absolute;
     this.seen.add(e);
     const mark = this.opts.mark && e.isDirectory() ? this.#sep : "";
@@ -29609,10 +29630,9 @@ var GlobUtil = class {
   }
 };
 var GlobWalker = class extends GlobUtil {
-  matches;
+  matches = /* @__PURE__ */ new Set();
   constructor(patterns, path3, opts) {
     super(patterns, path3, opts);
-    this.matches = /* @__PURE__ */ new Set();
   }
   matchEmit(e) {
     this.matches.add(e);
@@ -29710,6 +29730,7 @@ var Glob = class {
   signal;
   windowsPathsNoEscape;
   withFileTypes;
+  includeChildMatches;
   /**
    * The options provided to the constructor.
    */
@@ -29752,6 +29773,7 @@ var Glob = class {
     this.noext = !!opts.noext;
     this.realpath = !!opts.realpath;
     this.absolute = opts.absolute;
+    this.includeChildMatches = opts.includeChildMatches !== false;
     this.noglobstar = !!opts.noglobstar;
     this.matchBase = !!opts.matchBase;
     this.maxDepth = typeof opts.maxDepth === "number" ? opts.maxDepth : Infinity;
@@ -29825,7 +29847,8 @@ var Glob = class {
         ...this.opts,
         maxDepth: this.maxDepth !== Infinity ? this.maxDepth + this.scurry.cwd.depth() : Infinity,
         platform: this.platform,
-        nocase: this.nocase
+        nocase: this.nocase,
+        includeChildMatches: this.includeChildMatches
       }).walk()
     ];
   }
@@ -29835,7 +29858,8 @@ var Glob = class {
         ...this.opts,
         maxDepth: this.maxDepth !== Infinity ? this.maxDepth + this.scurry.cwd.depth() : Infinity,
         platform: this.platform,
-        nocase: this.nocase
+        nocase: this.nocase,
+        includeChildMatches: this.includeChildMatches
       }).walkSync()
     ];
   }
@@ -29844,7 +29868,8 @@ var Glob = class {
       ...this.opts,
       maxDepth: this.maxDepth !== Infinity ? this.maxDepth + this.scurry.cwd.depth() : Infinity,
       platform: this.platform,
-      nocase: this.nocase
+      nocase: this.nocase,
+      includeChildMatches: this.includeChildMatches
     }).stream();
   }
   streamSync() {
@@ -29852,7 +29877,8 @@ var Glob = class {
       ...this.opts,
       maxDepth: this.maxDepth !== Infinity ? this.maxDepth + this.scurry.cwd.depth() : Infinity,
       platform: this.platform,
-      nocase: this.nocase
+      nocase: this.nocase,
+      includeChildMatches: this.includeChildMatches
     }).streamSync();
   }
   /**
