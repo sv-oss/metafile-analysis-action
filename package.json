@@ -28,7 +28,7 @@
     "@typescript-eslint/parser": "^6",
     "@vercel/ncc": "^0.38.1",
     "constructs": "^10.0.0",
-    "esbuild": "^0.21.3",
+    "esbuild": "^0.21.4",
     "eslint": "^8",
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-import": "^2.29.1",
