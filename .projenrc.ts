@@ -123,7 +123,7 @@ const project = new GitHubActionTypeScriptProject({
 });
 
 
-project.packageTask.reset('esbuild ./src/index.ts --bundle --outdir=dist --platform=node --target=node20');
+project.packageTask.reset('esbuild ./src/index.ts --bundle --outdir=dist --platform=node --target=node20 --packages=bundle');
 
 // Build the project after upgrading so that the compiled JS ends up being committed
 project.tasks.tryFind('post-upgrade')?.spawn(project.buildTask);

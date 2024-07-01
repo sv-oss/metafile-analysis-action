@@ -136,7 +136,7 @@
       "description": "Creates the distribution package",
       "steps": [
         {
-          "exec": "esbuild ./src/index.ts --bundle --outdir=dist --platform=node --target=node20"
+          "exec": "esbuild ./src/index.ts --bundle --outdir=dist --platform=node --target=node20 --packages=bundle"
         }
       ]
     },
