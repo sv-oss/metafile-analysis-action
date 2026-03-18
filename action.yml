@@ -3,7 +3,7 @@
 name: ESBuild Metafile Analysis
 description: Generates a PR comment based on the metafile data analysis completed
 runs:
-  using: node22
+  using: node24
   main: dist/index.js
 author: Service Victoria Platform Engineering
 inputs:

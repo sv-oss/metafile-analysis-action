@@ -41,7 +41,7 @@ const project = new GitHubActionTypeScriptProject({
     name: 'ESBuild Metafile Analysis',
     description: 'Generates a PR comment based on the metafile data analysis completed',
     runs: {
-      using: 'node22' as RunsUsing,
+      using: 'node24' as RunsUsing,
       main: 'dist/index.js',
     },
     inputs: {
